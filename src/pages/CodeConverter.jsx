@@ -31,6 +31,7 @@ function CodeConverter() {
   ]);
   const [currentMessage, setCurrentMessage] = useState("");
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
 
   const handleMessageSubmit = async (e) => {
     e.preventDefault();
@@ -41,6 +42,7 @@ function CodeConverter() {
     ];
     setMessages(newMessages);
     setCurrentMessage("");
+    setIsThinking(true);
     try {
       const url = "https://api.mistral.ai/v1/chat/completions";
       const response = await fetch(url, {
@@ -53,22 +55,24 @@ function CodeConverter() {
           model: "mistral-small-latest",
           temperature: 1.5,
           top_p: 1,
-          messages: newMessages, // Use newMessages instead of messages
+          messages: newMessages,
         }),
       });
       const data = await response.json();
       console.log("Response:", data);
-      const responseMessage = data.choices[0].message.content; // Add .content to get the actual message
+      const responseMessage = data.choices[0]?.message.content || "";
       setMessages([
         ...newMessages,
-        { role: "assistant", content: responseMessage }, // Change role to "assistant" instead of "system"
+        { role: "assistant", content: responseMessage },
       ]);
     } catch (error) {
       console.error("Error generating response:", error);
       setMessages([
         ...newMessages, // Use newMessages to maintain conversation history
-        { role: "assistant", content: "I am sorry, I cannot help you." },
+        { role: "assistant", content: "I am sorry, I cannot help you now." },
       ]);
+    } finally {
+      setIsThinking(false);
     }
   };
 
@@ -158,7 +162,9 @@ function CodeConverter() {
     console.log("Voice to text...");
   };
 
-  console.log("Environment: ", import.meta.env.VITE_APP_TITLE);
+  // console.log("Environment: ", import.meta.env.VITE_APP_TITLE);
+  console.log("Current Message: ", currentMessage);
+  console.log("Messages: ", messages);
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
@@ -286,7 +292,7 @@ function CodeConverter() {
               >
                 <div className="flex justify-between mb-2 items-center text-sm font-medium">
                   <h2>Microservices (SpringBoot/Python/Javascript)</h2>
-                  
+
                   <div className="flex items-center gap-1">
                     <button onClick={() => setIsFullscreen(!isFullscreen)}>
                       {isFullscreen ? (
@@ -301,7 +307,7 @@ function CodeConverter() {
                         />
                       )}
                     </button>
-                    <button onClick={() => setIsPreview(!isPreview)}>
+                    {/* <button onClick={() => setIsPreview(!isPreview)}>
                       {isPreview ? (
                         <CodeBracketSquareIcon
                           className={`h-5 w-5 text-primary hover:text-gray-700`}
@@ -313,10 +319,10 @@ function CodeConverter() {
                           title="Preview"
                         />
                       )}
-                    </button>
+                    </button> */}
                   </div>
                 </div>
-                {isPreview ? (
+                {/* {isPreview ? (
                   <div
                     className={`w-full ${
                       isFullscreen ? "h-[calc(100vh-120px)]" : "h-48 lg:h-80"
@@ -330,24 +336,89 @@ function CodeConverter() {
                       </div>
                     </div>
                   </div>
-                ) : (
-                  <div
-                    className={`w-full ${
-                      isFullscreen ? "h-[calc(100vh-120px)]" : "h-48 lg:h-80"
-                    } bg-gray-50 border rounded-lg overflow-y-scroll p-3`}
-                  >
-                    <TextareaAutosize
+                ) : ( */}
+                <div
+                  className={`w-full ${
+                    isFullscreen ? "h-[calc(100vh-120px)]" : "h-48 lg:h-80"
+                  } bg-gray-50 border rounded-lg overflow-y-scroll p-3`}
+                >
+                  <div className="space-y-4">
+                    {messages
+                      .filter((message) => message.role !== "system")
+                      .map((message, index) => (
+                        <div
+                          key={index}
+                          className={`flex ${
+                            message.role === "assistant"
+                              ? "justify-start"
+                              : "justify-end"
+                          }`}
+                        >
+                          <div
+                            className={`max-w-[80%] p-3 rounded-lg ${
+                              message.role === "assistant"
+                                ? "bg-gray-200 text-gray-800"
+                                : "bg-primary text-white"
+                            }`}
+                          >
+                            <p className="text-sm whitespace-pre-wrap">
+                              {message.content}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    {isThinking && (
+                      <div className="flex justify-start">
+                        <div className="max-w-[80%] p-3 rounded-lg bg-gray-200">
+                          <div className="flex items-center gap-2">
+                            Thinking...
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {/* <TextareaAutosize
                       className="w-full h-full resize-none outline-none bg-transparent overflow-hidden"
                       value={outputCode}
                       onChange={(e) => setOutputCode(e.target.value)}
+                    /> */}
+                  </div>
+                </div>
+                {/* )} */}
+                {isFullscreen && (
+                  <div className="relative flex items-center gap-2 mt-3 lg:mt-4">
+                    <input
+                      type="text"
+                      value={currentMessage}
+                      onChange={(e) => setCurrentMessage(e.target.value)}
+                      placeholder="Ask a question..."
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleMessageSubmit(e);
+                        }
+                      }}
                     />
+                    <button
+                      className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 group"
+                      onClick={handleVoice}
+                    >
+                      <MicrophoneIcon className="h-5 w-5 text-gray-600 transition-transform duration-300 group-hover:translate-y-0.5" />
+                    </button>
+                    <button
+                      className="p-2 rounded-full bg-primary hover:bg-primary/90 group"
+                      onClick={handleMessageSubmit}
+                    >
+                      <ArrowRightIcon className="h-5 w-5 text-white transition-transform duration-300 group-hover:translate-x-0.5" />
+                    </button>
                   </div>
                 )}
-                <div className={`flex flex-col sm:flex-row justify-between gap-2 sm:gap-0 mt-3 lg:mt-5 ${
-                  isFullscreen 
-                    ? "w-2/5 fixed left-1/2 transform -translate-x-1/2" 
-                    : "w-full"
-                }`}>
+                <div
+                  className={`flex flex-col sm:flex-row justify-between gap-2 sm:gap-0 mt-3 lg:mt-5 ${
+                    isFullscreen
+                      ? "w-2/5 fixed left-1/2 transform -translate-x-1/2"
+                      : "w-full"
+                  }`}
+                >
                   <button
                     className="w-full sm:w-[49%] px-4 py-2 flex items-center justify-center gap-2 bg-white rounded-lg hover:bg-gray-300 border-2 border-secondary group"
                     onClick={handleGenerate}
