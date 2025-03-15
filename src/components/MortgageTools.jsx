@@ -20,7 +20,7 @@ export default function MortgageTools() {
         {/* Mortgage Calculators */}
         <div className="bg-[#11b67a] text-black p-6 rounded-2xl shadow-lg flex-1 flex flex-col min-h-[400px]">
           <div className="h-24">
-            <img src={calculator} className="w-18 h-18 md:w-24 md:h-24" />
+            <img src={calculator} className="w-16 h-16 md:w-24 md:h-24" />
           </div>
           <div className="flex items-center gap-3 h-16 mb-3">
             <h3 className="text-3xl font-semibold">
@@ -39,7 +39,7 @@ export default function MortgageTools() {
         {/* Agreement in Principle */}
         <div className="bg-white p-6 rounded-2xl shadow-lg flex-1 flex flex-col min-h-[400px]">
           <div className="h-24">
-            <img src={application} className="w-18 h-18 md:w-24 md:h-24" />
+            <img src={application} className="w-16 h-16 md:w-24 md:h-24" />
           </div>
           <div className="flex items-center gap-3 h-16 mb-3">
             <h3 className="text-3xl font-semibold">Agreement in Principle</h3>
@@ -56,7 +56,7 @@ export default function MortgageTools() {
         {/* Mortgage Dashboard */}
         <div className="bg-white p-6 rounded-2xl shadow-lg flex-1 flex flex-col min-h-[400px]">
           <div className="h-24">
-            <img src={notification} className="w-18 h-18 md:w-24 md:h-24" />
+            <img src={notification} className="w-16 h-16 md:w-24 md:h-24" />
           </div>
           <div className="flex items-center gap-3 h-16 mb-3">
             <h3 className="text-3xl font-semibold">Your mortgage dashboard</h3>

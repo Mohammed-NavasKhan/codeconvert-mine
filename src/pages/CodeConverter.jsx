@@ -10,6 +10,8 @@ import {
   CodeBracketSquareIcon,
   MicrophoneIcon,
   TvIcon,
+  ArrowsPointingInIcon,
+  ArrowsPointingOutIcon,
 } from "@heroicons/react/16/solid";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
@@ -24,6 +26,51 @@ function CodeConverter() {
     "Converted code will appear here..."
   );
   const [isPreview, setIsPreview] = useState(true);
+  const [messages, setMessages] = useState([
+    { role: "system", content: "You are a helpful assistant." },
+  ]);
+  const [currentMessage, setCurrentMessage] = useState("");
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const handleMessageSubmit = async (e) => {
+    e.preventDefault();
+    if (!currentMessage.trim()) return;
+    const newMessages = [
+      ...messages,
+      { role: "user", content: currentMessage },
+    ];
+    setMessages(newMessages);
+    setCurrentMessage("");
+    try {
+      const url = "https://api.mistral.ai/v1/chat/completions";
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer zly02m3bfr2xKZPuuKdxhHVs4GnBludx`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "mistral-small-latest",
+          temperature: 1.5,
+          top_p: 1,
+          messages: newMessages, // Use newMessages instead of messages
+        }),
+      });
+      const data = await response.json();
+      console.log("Response:", data);
+      const responseMessage = data.choices[0].message.content; // Add .content to get the actual message
+      setMessages([
+        ...newMessages,
+        { role: "assistant", content: responseMessage }, // Change role to "assistant" instead of "system"
+      ]);
+    } catch (error) {
+      console.error("Error generating response:", error);
+      setMessages([
+        ...newMessages, // Use newMessages to maintain conversation history
+        { role: "assistant", content: "I am sorry, I cannot help you." },
+      ]);
+    }
+  };
 
   const handleReset = () => {
     console.log("Resetting data...");
@@ -69,14 +116,14 @@ function CodeConverter() {
   const handleConvert = async () => {
     try {
       const response = await fetch(import.meta.env.VITE_API_URL_TECH_SPEC, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_API_TOKEN}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${import.meta.env.VITE_API_TOKEN}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: inputCode
-        })
+          data: {},
+        }),
       });
       const data = await response.json();
       setOutputCode(JSON.stringify(data, null, 2));
@@ -109,10 +156,6 @@ function CodeConverter() {
 
   const handleVoice = () => {
     console.log("Voice to text...");
-  };
-
-  const handlePrompt = () => {
-    console.log("Adding Prompt...");
   };
 
   console.log("Environment: ", import.meta.env.VITE_APP_TITLE);
@@ -175,8 +218,15 @@ function CodeConverter() {
                 <div className="relative flex items-center gap-2 mt-3 lg:mt-4">
                   <input
                     type="text"
+                    value={currentMessage}
+                    onChange={(e) => setCurrentMessage(e.target.value)}
                     placeholder="Ask a question..."
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleMessageSubmit(e);
+                      }
+                    }}
                   />
                   <button
                     className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 group"
@@ -186,7 +236,7 @@ function CodeConverter() {
                   </button>
                   <button
                     className="p-2 rounded-full bg-primary hover:bg-primary/90 group"
-                    onClick={handlePrompt}
+                    onClick={handleMessageSubmit}
                   >
                     <ArrowRightIcon className="h-5 w-5 text-white transition-transform duration-300 group-hover:translate-x-0.5" />
                   </button>
@@ -229,29 +279,49 @@ function CodeConverter() {
                   </button>
                 </div>
               </div>
-              <div>
-                <div className="flex justify-between mb-2 items-center text-sm font-medium ">
+              <div
+                className={`${
+                  isFullscreen ? "fixed inset-0 z-50 bg-white p-4" : ""
+                }`}
+              >
+                <div className="flex justify-between mb-2 items-center text-sm font-medium">
                   <h2>Microservices (SpringBoot/Python/Javascript)</h2>
-                  <button onClick={() => setIsPreview(!isPreview)}>
-                    {isPreview ? (
-                      <div className="flex items-center gap-1">
+                  
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => setIsFullscreen(!isFullscreen)}>
+                      {isFullscreen ? (
+                        <ArrowsPointingInIcon
+                          className="h-4 w-4 text-primary hover:text-gray-700"
+                          title="Small screen"
+                        />
+                      ) : (
+                        <ArrowsPointingOutIcon
+                          className="h-4 w-4 text-primary hover:text-gray-700"
+                          title="Fullscreen"
+                        />
+                      )}
+                    </button>
+                    <button onClick={() => setIsPreview(!isPreview)}>
+                      {isPreview ? (
                         <CodeBracketSquareIcon
                           className={`h-5 w-5 text-primary hover:text-gray-700`}
+                          title="Edit"
                         />
-                        <span>Edit</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1">
+                      ) : (
                         <TvIcon
                           className={`h-5 w-5 text-primary hover:text-gray-700`}
+                          title="Preview"
                         />
-                        <span>Preview</span>
-                      </div>
-                    )}
-                  </button>
+                      )}
+                    </button>
+                  </div>
                 </div>
                 {isPreview ? (
-                  <div className="w-full h-48 lg:h-80 bg-gray-50 border rounded-lg overflow-y-scroll p-3">
+                  <div
+                    className={`w-full ${
+                      isFullscreen ? "h-[calc(100vh-120px)]" : "h-48 lg:h-80"
+                    } bg-gray-50 border rounded-lg overflow-y-scroll p-3`}
+                  >
                     <div ref={contentRef} className="print-content">
                       <div>
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -261,15 +331,23 @@ function CodeConverter() {
                     </div>
                   </div>
                 ) : (
-                  <TextareaAutosize
-                    className="w-full h-48 lg:h-80 bg-gray-50 border rounded-lg overflow-y-scroll p-3"
-                    value={outputCode}
-                    onChange={(e) => setOutputCode(e.target.value)}
-                    minRows={12}
-                    maxRows={12}
-                  />
+                  <div
+                    className={`w-full ${
+                      isFullscreen ? "h-[calc(100vh-120px)]" : "h-48 lg:h-80"
+                    } bg-gray-50 border rounded-lg overflow-y-scroll p-3`}
+                  >
+                    <TextareaAutosize
+                      className="w-full h-full resize-none outline-none bg-transparent overflow-hidden"
+                      value={outputCode}
+                      onChange={(e) => setOutputCode(e.target.value)}
+                    />
+                  </div>
                 )}
-                <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0 mt-3 lg:mt-5">
+                <div className={`flex flex-col sm:flex-row justify-between gap-2 sm:gap-0 mt-3 lg:mt-5 ${
+                  isFullscreen 
+                    ? "w-2/5 fixed left-1/2 transform -translate-x-1/2" 
+                    : "w-full"
+                }`}>
                   <button
                     className="w-full sm:w-[49%] px-4 py-2 flex items-center justify-center gap-2 bg-white rounded-lg hover:bg-gray-300 border-2 border-secondary group"
                     onClick={handleGenerate}
