@@ -31,6 +31,7 @@ function CodeConverter() {
   ]);
   const [currentMessage, setCurrentMessage] = useState("");
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
 
   const handleMessageSubmit = async (e) => {
@@ -155,11 +156,40 @@ function CodeConverter() {
   };
 
   const handleDownload = () => {
-    console.log("Downloading code...");
+    console.log("Downloading code...", isPreview);
   };
 
   const handleVoice = () => {
     console.log("Voice to text...");
+    if (!("webkitSpeechRecognition" in window)) {
+      alert("Speech Recognition is not supported in this browser.");
+      return;
+    }
+
+    const recognition = new window.webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-US";
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      console.log("Transcript:", transcript);
+      setCurrentMessage(transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error", event);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
   };
 
   // console.log("Environment: ", import.meta.env.VITE_APP_TITLE);
@@ -235,10 +265,18 @@ function CodeConverter() {
                     }}
                   />
                   <button
-                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 group"
+                    className={`p-2 rounded-full ${
+                      isListening
+                        ? "bg-red-500"
+                        : "bg-gray-100 hover:bg-gray-200"
+                    } group`}
                     onClick={handleVoice}
                   >
-                    <MicrophoneIcon className="h-5 w-5 text-gray-600 transition-transform duration-300 group-hover:translate-y-0.5" />
+                    <MicrophoneIcon
+                      className={`${
+                        isListening ? "text-white" : "text-gray-600"
+                      } h-5 w-5 transition-transform duration-300 group-hover:translate-y-0.5`}
+                    />
                   </button>
                   <button
                     className="p-2 rounded-full bg-primary hover:bg-primary/90 group"
@@ -361,9 +399,12 @@ function CodeConverter() {
                                 : "bg-primary text-white"
                             }`}
                           >
-                            <p className="text-sm whitespace-pre-wrap">
+                            <ReactMarkdown
+                              // className="text-sm whitespace-pre-wrap"
+                              remarkPlugins={[remarkGfm]}
+                            >
                               {message.content}
-                            </p>
+                            </ReactMarkdown>
                           </div>
                         </div>
                       ))}
@@ -399,10 +440,18 @@ function CodeConverter() {
                       }}
                     />
                     <button
-                      className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 group"
+                      className={`p-2 rounded-full ${
+                        isListening
+                          ? "bg-red-500"
+                          : "bg-gray-100 hover:bg-gray-200"
+                      } group`}
                       onClick={handleVoice}
                     >
-                      <MicrophoneIcon className="h-5 w-5 text-gray-600 transition-transform duration-300 group-hover:translate-y-0.5" />
+                      <MicrophoneIcon
+                        className={`${
+                          isListening ? "text-white" : "text-gray-600"
+                        } h-5 w-5 transition-transform duration-300 group-hover:translate-y-0.5`}
+                      />
                     </button>
                     <button
                       className="p-2 rounded-full bg-primary hover:bg-primary/90 group"
