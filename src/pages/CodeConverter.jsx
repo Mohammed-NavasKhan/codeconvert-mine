@@ -12,12 +12,16 @@ import {
   TvIcon,
   ArrowsPointingInIcon,
   ArrowsPointingOutIcon,
+  ClipboardIcon,
+  SpeakerWaveIcon,
+  TagIcon,
 } from "@heroicons/react/16/solid";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import TextareaAutosize from "react-textarea-autosize";
 import { useReactToPrint } from "react-to-print";
+import { ClipboardDocumentIcon } from "@heroicons/react/16/solid";
 
 function CodeConverter() {
   const contentRef = useRef();
@@ -190,6 +194,33 @@ function CodeConverter() {
     };
 
     recognition.start();
+  };
+
+  const handleCopyClipboard = (e, message) => {
+    const button = e.currentTarget;
+    navigator.clipboard
+      .writeText(message.content)
+      .then(() => {
+        if (button) {
+          button.classList.add("bg-green-200");
+          setTimeout(() => {
+            button.classList.remove("bg-green-200");
+          }, 500);
+        }
+      })
+      .catch((err) => console.error("Failed to copy:", err));
+  };
+
+  const handleDownloadMessage = (message, index) => {
+    const element = document.createElement("a");
+    const file = new Blob([message.content], {
+      type: "text/plain",
+    });
+    element.href = URL.createObjectURL(file);
+    element.download = `response_${index}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
   };
 
   // console.log("Environment: ", import.meta.env.VITE_APP_TITLE);
@@ -384,28 +415,61 @@ function CodeConverter() {
                     {messages
                       .filter((message) => message.role !== "system")
                       .map((message, index) => (
-                        <div
-                          key={index}
-                          className={`flex ${
-                            message.role === "assistant"
-                              ? "justify-start"
-                              : "justify-end"
-                          }`}
-                        >
+                        <div key={index} className="relative mb-6">
                           <div
-                            className={`max-w-[80%] p-3 rounded-lg ${
+                            className={`flex ${
                               message.role === "assistant"
-                                ? "bg-gray-200 text-gray-800"
-                                : "bg-primary text-white"
+                                ? "justify-start"
+                                : "justify-end"
                             }`}
                           >
-                            <ReactMarkdown
-                              // className="text-sm whitespace-pre-wrap"
-                              remarkPlugins={[remarkGfm]}
+                            <div
+                              className={`max-w-[80%] p-3 rounded-lg ${
+                                message.role === "assistant"
+                                  ? "bg-gray-200 text-gray-800"
+                                  : "bg-primary text-white"
+                              }`}
                             >
-                              {message.content}
-                            </ReactMarkdown>
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {message.content}
+                              </ReactMarkdown>
+                            </div>
                           </div>
+                          {message.role === "assistant" && (
+                            <div className="flex">
+                              <button
+                                onClick={(e) => handleCopyClipboard(e, message)}
+                                className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
+                                title="Copy to clipboard"
+                              >
+                                <ClipboardIcon className="h-4 w-4 text-gray-600" />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleDownloadMessage(message, index)
+                                }
+                                className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
+                                title="Download message"
+                              >
+                                <ArrowDownTrayIcon className="h-4 w-4 text-gray-600" />
+                              </button>
+                              <button
+                                className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
+                                title="Read aloud"
+                              >
+                                <SpeakerWaveIcon className="h-4 w-4 text-gray-600" />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  setCurrentMessage(message.content)
+                                }
+                                className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
+                                title="Reply to chat"
+                              >
+                                <TagIcon className="h-4 w-4 text-gray-600" />
+                              </button>
+                            </div>
+                          )}
                         </div>
                       ))}
                     {isThinking && (
