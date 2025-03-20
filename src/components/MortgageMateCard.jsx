@@ -2,8 +2,8 @@ import { CheckCircleIcon } from "@heroicons/react/20/solid";
 import Ai from "../assets/agent.png";
 const FeatureItem = ({ text }) => (
   <div className="flex items-start gap-2 py-2">
-    <CheckCircleIcon className="h-6 w-6 text-primary" />
-    <p>{text}</p>
+    <CheckCircleIcon className="h-6 w-6 flex-shrink-0 text-primary" />
+    <p className="flex-1">{text}</p>
   </div>
 );
 

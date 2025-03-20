@@ -15,6 +15,10 @@ import {
   ClipboardIcon,
   SpeakerWaveIcon,
   TagIcon,
+  PaperClipIcon,
+  TrashIcon,
+  HashtagIcon,
+  SparklesIcon,
 } from "@heroicons/react/16/solid";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
@@ -26,9 +30,6 @@ import { ClipboardDocumentIcon } from "@heroicons/react/16/solid";
 function CodeConverter() {
   const contentRef = useRef();
   const [inputCode, setInputCode] = useState("");
-  const [outputCode, setOutputCode] = useState(
-    "Converted code will appear here..."
-  );
   const [isPreview, setIsPreview] = useState(true);
   const [messages, setMessages] = useState([
     { role: "system", content: "You are a helpful assistant." },
@@ -37,6 +38,60 @@ function CodeConverter() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
+  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("");
+  const languageOptions = [
+    "JavaScript",
+    "Python",
+    "Java",
+    "Rust",
+    "PHP",
+    "Swift",
+  ];
+
+  const handleReset = () => {
+    console.log("Resetting data...");
+    setInputCode("");
+    setMessages([{ role: "system", content: "You are a helpful assistant." }]);
+    setCurrentMessage("");
+    setSelectedLanguage("");
+    setIsLanguageDropdownOpen(false);
+    const fileInput = document.getElementById("fileInput");
+    if (fileInput) fileInput.value = "";
+  };
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setInputCode(e.target.result);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handlePrint = useReactToPrint({
+    contentRef,
+    documentTitle: "converted_code",
+    pageStyle: `
+      @media print {
+        body {
+          padding: 20px;
+          font-family: monospace;
+          font-size: 16px;
+        }        
+      }
+    `,
+  });
+
+  const handleSave = () => {
+    console.log("saving pdf");
+    setIsPreview(true);
+    setTimeout(() => {
+      handlePrint();
+    }, 100);
+  };
 
   const handleMessageSubmit = async (e) => {
     e.preventDefault();
@@ -81,81 +136,93 @@ function CodeConverter() {
     }
   };
 
-  const handleReset = () => {
-    console.log("Resetting data...");
-    setInputCode("");
-    setOutputCode("Converted code will appear here...");
-    const fileInput = document.getElementById("fileInput");
-    if (fileInput) fileInput.value = "";
-  };
-
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setInputCode(e.target.result);
-      };
-      reader.readAsText(file);
-    }
-  };
-
-  const handlePrint = useReactToPrint({
-    contentRef,
-    documentTitle: "converted_code",
-    pageStyle: `
-      @media print {
-        body {
-          padding: 20px;
-          font-family: monospace;
-          font-size: 16px;
-        }        
-      }
-    `,
-  });
-
-  const handleSave = () => {
-    console.log("saving pdf");
-    setIsPreview(true);
-    setTimeout(() => {
-      handlePrint();
-    }, 100);
-  };
-
   const handleConvert = async () => {
+    const newMessages = [
+      ...messages,
+      {
+        role: "user",
+        content:
+          "Convert below code into Technical Specification Document.\n\n" +
+          inputCode,
+      },
+    ];
+    setMessages(newMessages);
+    setCurrentMessage("");
+    setIsThinking(true);
     try {
-      const response = await fetch(import.meta.env.VITE_API_URL_TECH_SPEC, {
+      const url = "https://api.mistral.ai/v1/chat/completions";
+      const response = await fetch(url, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${import.meta.env.VITE_API_TOKEN}`,
+          Authorization: `Bearer zly02m3bfr2xKZPuuKdxhHVs4GnBludx`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          data: {},
+          model: "mistral-small-latest",
+          temperature: 1.5,
+          top_p: 1,
+          messages: newMessages,
         }),
       });
       const data = await response.json();
-      setOutputCode(JSON.stringify(data, null, 2));
+      const responseMessage = data.choices[0]?.message.content || "";
+      setMessages([
+        ...newMessages,
+        { role: "assistant", content: responseMessage },
+      ]);
     } catch (error) {
-      console.error("Error converting code:", error);
-      setOutputCode("Error occurred while converting code.");
+      console.error("Error generating response:", error);
+      setMessages([
+        ...newMessages, // Use newMessages to maintain conversation history
+        { role: "assistant", content: "I am sorry, I cannot help you now." },
+      ]);
+    } finally {
+      setIsThinking(false);
     }
   };
 
   const handleGenerate = async () => {
-    console.log("Generate Code...", outputCode);
+    const newMessages = [
+      ...messages,
+      {
+        role: "user",
+        content:
+          "Convert below document into code." +
+          messages[messages.length - 1]?.content,
+      },
+    ];
+    setMessages(newMessages);
+    setCurrentMessage("");
+    setIsThinking(true);
     try {
-      const response = await fetch(import.meta.env.VITE_API_URL, {
+      const url = "https://api.mistral.ai/v1/chat/completions";
+      const response = await fetch(url, {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${import.meta.env.VITE_API_TOKEN}`,
+          Authorization: `Bearer zly02m3bfr2xKZPuuKdxhHVs4GnBludx`,
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          model: "mistral-small-latest",
+          temperature: 1.5,
+          top_p: 1,
+          messages: newMessages,
+        }),
       });
       const data = await response.json();
-      setOutputCode(JSON.stringify(data, null, 2));
+      const responseMessage = data.choices[0]?.message.content || "";
+      setMessages([
+        ...newMessages,
+        { role: "assistant", content: responseMessage },
+      ]);
     } catch (error) {
-      console.error("Error converting code:", error);
-      setOutputCode("Error occurred while converting code.");
+      console.error("Error generating response:", error);
+      setMessages([
+        ...newMessages, // Use newMessages to maintain conversation history
+        { role: "assistant", content: "I am sorry, I cannot help you now." },
+      ]);
+    } finally {
+      setIsThinking(false);
     }
   };
 
@@ -223,11 +290,20 @@ function CodeConverter() {
     document.body.removeChild(element);
   };
 
+  const handleReadAloud = (text) => {
+    const speech = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(speech);
+  };
+
+  const handleLanguage = () => {
+    setIsLanguageDropdownOpen(!isLanguageDropdownOpen);
+  };
+
   // console.log("Environment: ", import.meta.env.VITE_APP_TITLE);
   console.log("Current Message: ", currentMessage);
   console.log("Messages: ", messages);
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-6">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
         <div className="lg:col-span-3">
           <div className="bg-white rounded-lg shadow p-4">
@@ -277,82 +353,11 @@ function CodeConverter() {
                   Input your legacy code (C/C++/Java/COBOL)
                 </h2>
                 <textarea
-                  className="w-full h-48 lg:h-64 p-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary overflow-y-auto"
+                  className="w-full h-48 lg:h-[calc(100vh-420px)] p-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary overflow-y-auto"
                   value={inputCode}
                   onChange={(e) => setInputCode(e.target.value)}
                   placeholder="Type or paste your code here..."
                 />
-                <div className="relative flex items-center gap-2 mt-3 lg:mt-4">
-                  <input
-                    type="text"
-                    value={currentMessage}
-                    onChange={(e) => setCurrentMessage(e.target.value)}
-                    placeholder="Ask a question..."
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleMessageSubmit(e);
-                      }
-                    }}
-                  />
-                  <button
-                    className={`p-2 rounded-full ${
-                      isListening
-                        ? "bg-red-500"
-                        : "bg-gray-100 hover:bg-gray-200"
-                    } group`}
-                    onClick={handleVoice}
-                  >
-                    <MicrophoneIcon
-                      className={`${
-                        isListening ? "text-white" : "text-gray-600"
-                      } h-5 w-5 transition-transform duration-300 group-hover:translate-y-0.5`}
-                    />
-                  </button>
-                  <button
-                    className="p-2 rounded-full bg-primary hover:bg-primary/90 group"
-                    onClick={handleMessageSubmit}
-                  >
-                    <ArrowRightIcon className="h-5 w-5 text-white transition-transform duration-300 group-hover:translate-x-0.5" />
-                  </button>
-                </div>
-                <div className="mt-4 lg:mt-6 grid grid-cols-2 md:grid-cols-4 gap-2 lg:gap-4 w-full">
-                  <button
-                    className="w-full min-h-[40px] px-3 py-2 bg-gray-200 rounded-lg flex items-center justify-center gap-1.5 hover:bg-gray-300 text-sm focus:outline-none group"
-                    onClick={handleReset}
-                  >
-                    <ArrowPathIcon className="h-4 w-4 text-black flex-shrink-0 transition-transform duration-300 group-hover:rotate-180" />
-                    Reset
-                  </button>
-                  <button
-                    className="w-full min-h-[40px] px-3 py-2 bg-gray-200 rounded-lg flex items-center justify-center gap-1.5 hover:bg-gray-300 text-sm group relative"
-                    onClick={() => document.getElementById("fileInput").click()}
-                  >
-                    <input
-                      type="file"
-                      id="fileInput"
-                      accept=".js,.jsx,.ts,.tsx,.py,.java,.cpp,.c,.cs,.rb,.php,.go,.rs,.swift,.kt,.pl,.r,.m,.h,.scala,.sql,.cobol"
-                      className="hidden"
-                      onChange={handleFileUpload}
-                    />
-                    <ArrowDownRightIcon className="h-4 w-4 text-black flex-shrink-0 transition-transform duration-300 group-hover:translate-y-0.5 group-hover:translate-x-0.5" />
-                    Import
-                  </button>
-                  <button
-                    className="w-full min-h-[40px] px-3 py-2 bg-gray-200 rounded-lg flex items-center justify-center gap-1.5 hover:bg-gray-300 text-sm group"
-                    onClick={handleSave}
-                  >
-                    <BookmarkIcon className="h-4 w-4 text-black flex-shrink-0 transition-transform duration-300 group-hover:translate-y-0.5" />
-                    Save
-                  </button>
-                  <button
-                    className="w-full min-h-[40px] px-3 py-2 bg-primary text-white rounded-lg flex items-center justify-center gap-1.5 hover:bg-primary/90 text-sm focus:outline-none group"
-                    onClick={handleConvert}
-                  >
-                    <ArrowPathRoundedSquareIcon className="h-4 w-4 text-white flex-shrink-0 transition-transform duration-300 group-hover:rotate-180" />
-                    Convert
-                  </button>
-                </div>
               </div>
               <div
                 className={`${
@@ -376,39 +381,14 @@ function CodeConverter() {
                         />
                       )}
                     </button>
-                    {/* <button onClick={() => setIsPreview(!isPreview)}>
-                      {isPreview ? (
-                        <CodeBracketSquareIcon
-                          className={`h-5 w-5 text-primary hover:text-gray-700`}
-                          title="Edit"
-                        />
-                      ) : (
-                        <TvIcon
-                          className={`h-5 w-5 text-primary hover:text-gray-700`}
-                          title="Preview"
-                        />
-                      )}
-                    </button> */}
                   </div>
                 </div>
-                {/* {isPreview ? (
-                  <div
-                    className={`w-full ${
-                      isFullscreen ? "h-[calc(100vh-120px)]" : "h-48 lg:h-80"
-                    } bg-gray-50 border rounded-lg overflow-y-scroll p-3`}
-                  >
-                    <div ref={contentRef} className="print-content">
-                      <div>
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {outputCode}
-                        </ReactMarkdown>
-                      </div>
-                    </div>
-                  </div>
-                ) : ( */}
+
                 <div
                   className={`w-full ${
-                    isFullscreen ? "h-[calc(100vh-120px)]" : "h-48 lg:h-80"
+                    isFullscreen
+                      ? "h-[calc(100vh-210px)]"
+                      : "h-48 lg:h-[calc(100vh-420px)]"
                   } bg-gray-50 border rounded-lg overflow-y-scroll p-3`}
                 >
                   <div className="space-y-4">
@@ -419,10 +399,13 @@ function CodeConverter() {
                           <div
                             className={`flex ${
                               message.role === "assistant"
-                                ? "justify-start"
+                                ? "justify-start gap-1"
                                 : "justify-end"
                             }`}
                           >
+                            {message.role === "assistant" && (
+                              <SparklesIcon className="h-6 w-6 text-primary" />
+                            )}
                             <div
                               className={`max-w-[80%] p-3 rounded-lg ${
                                 message.role === "assistant"
@@ -436,7 +419,7 @@ function CodeConverter() {
                             </div>
                           </div>
                           {message.role === "assistant" && (
-                            <div className="flex">
+                            <div className="flex ml-6">
                               <button
                                 onClick={(e) => handleCopyClipboard(e, message)}
                                 className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
@@ -454,6 +437,7 @@ function CodeConverter() {
                                 <ArrowDownTrayIcon className="h-4 w-4 text-gray-600" />
                               </button>
                               <button
+                                onClick={() => handleReadAloud(message.content)}
                                 className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
                                 title="Read aloud"
                               >
@@ -481,72 +465,141 @@ function CodeConverter() {
                         </div>
                       </div>
                     )}
-                    {/* <TextareaAutosize
-                      className="w-full h-full resize-none outline-none bg-transparent overflow-hidden"
-                      value={outputCode}
-                      onChange={(e) => setOutputCode(e.target.value)}
-                    /> */}
                   </div>
                 </div>
-                {/* )} */}
-                {isFullscreen && (
-                  <div className="relative flex items-center gap-2 mt-3 lg:mt-4">
-                    <input
-                      type="text"
-                      value={currentMessage}
-                      onChange={(e) => setCurrentMessage(e.target.value)}
-                      placeholder="Ask a question..."
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          handleMessageSubmit(e);
-                        }
-                      }}
-                    />
-                    <button
-                      className={`p-2 rounded-full ${
-                        isListening
-                          ? "bg-red-500"
-                          : "bg-gray-100 hover:bg-gray-200"
-                      } group`}
-                      onClick={handleVoice}
-                    >
-                      <MicrophoneIcon
-                        className={`${
-                          isListening ? "text-white" : "text-gray-600"
-                        } h-5 w-5 transition-transform duration-300 group-hover:translate-y-0.5`}
-                      />
-                    </button>
-                    <button
-                      className="p-2 rounded-full bg-primary hover:bg-primary/90 group"
-                      onClick={handleMessageSubmit}
-                    >
-                      <ArrowRightIcon className="h-5 w-5 text-white transition-transform duration-300 group-hover:translate-x-0.5" />
-                    </button>
-                  </div>
-                )}
-                <div
-                  className={`flex flex-col sm:flex-row justify-between gap-2 sm:gap-0 mt-3 lg:mt-5 ${
-                    isFullscreen
-                      ? "w-2/5 fixed left-1/2 transform -translate-x-1/2"
-                      : "w-full"
-                  }`}
-                >
+              </div>
+            </div>
+          </div>
+          <div
+            className={`md:fixed md:w-6/12 ${
+              isFullscreen ? "left-[25.33%]" : "left-[35.33%]"
+            } bottom-6 mt-6 md:mt-2 z-50`}
+          >
+            <div className="flex flex-col gap-1 bg-white rounded-3xl shadow px-2 py-1 border border-s-gray-100">
+              <textarea
+                value={currentMessage}
+                onChange={(e) => setCurrentMessage(e.target.value)}
+                placeholder="Ask a question..."
+                className="w-full h-10 resize-none focus:outline-none rounded-lg mt-2 pt-2 px-1"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleMessageSubmit(e);
+                  }
+                }}
+              />
+              <div className="w-full h-full flex flex-wrap justify-between gap-4 mt-2 mb-1">
+                <div className="flex gap-2 justify-center items-center ml-2">
                   <button
-                    className="w-full sm:w-[49%] px-4 py-2 flex items-center justify-center gap-2 bg-white rounded-lg hover:bg-gray-300 border-2 border-secondary group"
-                    onClick={handleGenerate}
+                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 group flex gap-1"
+                    onClick={handleLanguage}
+                    title="Select Language"
                   >
-                    <BeakerIcon
-                      className={`h-4 w-4 text-secondary group-hover:animate-[wiggle_0.5s_ease-in-out]`}
+                    <HashtagIcon
+                      className={`h-4 w-4 text-gray-600 group-hover:animate-[wiggle_0.5s_ease-in-out]`}
                     />
-                    Generate
+                    {selectedLanguage && (
+                      <p className="text-xs pr-1">{selectedLanguage}</p>
+                    )}
+                  </button>
+                  {isLanguageDropdownOpen && (
+                    <div className="absolute bottom-10 left-0 mb-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                      {languageOptions.map((lang) => (
+                        <button
+                          key={lang}
+                          className={`w-full px-4 py-2 text-left hover:bg-gray-100 text-sm ${
+                            selectedLanguage === lang
+                              ? "bg-gray-50 text-primary"
+                              : "text-gray-700"
+                          }`}
+                          onClick={() => {
+                            setSelectedLanguage(lang);
+                            setIsLanguageDropdownOpen(false);
+                          }}
+                        >
+                          {lang}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  <button
+                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 group"
+                    onClick={handleReset}
+                    title="Clear chat"
+                  >
+                    <TrashIcon
+                      className={`h-4 w-4 text-gray-600 group-hover:animate-[wiggle_0.5s_ease-in-out]`}
+                    />
                   </button>
                   <button
-                    className="w-full sm:w-[49%] px-4 py-2 flex items-center justify-center bg-secondary gap-2 text-white rounded-lg hover:bg-black/90 group"
-                    onClick={handleDownload}
+                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 group"
+                    onClick={() => document.getElementById("fileInput").click()}
+                    title="Upload the file"
                   >
-                    <ArrowDownTrayIcon className="h-4 w-4 text-white flex-shrink-0 transition-transform duration-300 group-hover:translate-y-0.5" />
-                    Download
+                    <input
+                      type="file"
+                      id="fileInput"
+                      accept=".js,.jsx,.ts,.tsx,.py,.java,.cpp,.c,.cs,.rb,.php,.go,.rs,.swift,.kt,.pl,.r,.m,.h,.scala,.sql,.cobol"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                    />
+                    <PaperClipIcon className="h-4 w-4 text-black flex-shrink-0 transition-transform duration-300 group-hover:translate-y-0.5 group-hover:translate-x-0.5" />
+                  </button>
+                  <button
+                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 group"
+                    onClick={handleSave}
+                    title="Save the chat"
+                  >
+                    <BookmarkIcon className="h-4 w-4 text-gray-600 flex-shrink-0 transition-transform duration-300 group-hover:translate-y-0.5" />
+                  </button>
+                  <button
+                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 group"
+                    onClick={handleConvert}
+                    title="Convert into code"
+                  >
+                    <ArrowPathRoundedSquareIcon className="h-4 w-4 text-gray-600 flex-shrink-0 transition-transform duration-300 group-hover:rotate-180" />
+                  </button>
+
+                  <button
+                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 group"
+                    onClick={handleDownload}
+                    title="Download the chat"
+                  >
+                    <ArrowDownTrayIcon className="h-4 w-4 text-gray-600 flex-shrink-0 transition-transform duration-300 group-hover:translate-y-0.5" />
+                  </button>
+                </div>
+                <div className="flex gap-2 justify-center items-center mr-2 ml-2 md:ml-0">
+                  <button
+                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 group"
+                    onClick={handleGenerate}
+                    title="Generate code"
+                  >
+                    <BeakerIcon
+                      className={`h-4 w-4 text-gray-600 group-hover:animate-[wiggle_0.5s_ease-in-out]`}
+                    />
+                  </button>
+                  <button
+                    className={`p-2 rounded-full ${
+                      isListening
+                        ? "bg-red-500"
+                        : "bg-gray-100 hover:bg-gray-200"
+                    } group`}
+                    onClick={handleVoice}
+                    title="Voice to text"
+                  >
+                    <MicrophoneIcon
+                      className={`${
+                        isListening ? "text-white" : "text-gray-600"
+                      } h-5 w-5 transition-transform duration-300 group-hover:translate-y-0.5`}
+                    />
+                  </button>
+                  <button
+                    className="p-2 rounded-full bg-primary hover:bg-primary/90 group"
+                    onClick={handleMessageSubmit}
+                    title="Submit"
+                  >
+                    <ArrowRightIcon className="h-5 w-5 text-white transition-transform duration-300 group-hover:translate-x-0.5" />
                   </button>
                 </div>
               </div>

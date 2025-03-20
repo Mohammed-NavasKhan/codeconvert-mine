@@ -1,5 +1,5 @@
 import React,{useState} from "react";
-import { ArrowRightIcon, MicrophoneIcon } from "@heroicons/react/16/solid";
+import { ArrowRightIcon, MicrophoneIcon, HomeIcon } from "@heroicons/react/16/solid";
 
 const Mortgages = () => {
     const [isListening, setIsListening] = useState(false);
@@ -42,6 +42,13 @@ const Mortgages = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-4xl mb-4">
+        <a href="/" className="inline-flex items-center text-primary hover:text-primary/80 gap-2">
+          <HomeIcon className="h-5 w-5" />
+          <span>Back to Home</span>
+        </a>
+      </div>
+      
       <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg p-6">
         {/* Header */}
         <div className="flex items-center justify-between  pb-4 mb-6">
