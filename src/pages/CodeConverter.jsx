@@ -1,36 +1,27 @@
-import { useRef } from "react";
 import {
-  ArrowDownRightIcon,
   ArrowDownTrayIcon,
-  ArrowPathIcon,
   ArrowPathRoundedSquareIcon,
   ArrowRightIcon,
-  BeakerIcon,
-  BookmarkIcon,
-  CodeBracketSquareIcon,
-  MicrophoneIcon,
-  TvIcon,
   ArrowsPointingInIcon,
   ArrowsPointingOutIcon,
+  BeakerIcon,
   ClipboardIcon,
+  HashtagIcon,
+  MicrophoneIcon,
+  PaperClipIcon,
+  SparklesIcon,
   SpeakerWaveIcon,
   TagIcon,
-  PaperClipIcon,
   TrashIcon,
-  HashtagIcon,
-  SparklesIcon,
 } from "@heroicons/react/16/solid";
+import html2pdf from "html2pdf.js";
+import { marked } from "marked";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import TextareaAutosize from "react-textarea-autosize";
-import { useReactToPrint } from "react-to-print";
-import { ClipboardDocumentIcon } from "@heroicons/react/16/solid";
 
 function CodeConverter() {
-  const contentRef = useRef();
   const [inputCode, setInputCode] = useState("");
-  const [isPreview, setIsPreview] = useState(true);
   const [messages, setMessages] = useState([
     { role: "system", content: "You are a helpful assistant." },
   ]);
@@ -71,34 +62,12 @@ function CodeConverter() {
     }
   };
 
-  const handlePrint = useReactToPrint({
-    contentRef,
-    documentTitle: "converted_code",
-    pageStyle: `
-      @media print {
-        body {
-          padding: 20px;
-          font-family: monospace;
-          font-size: 16px;
-        }        
-      }
-    `,
-  });
-
-  const handleSave = () => {
-    console.log("saving pdf");
-    setIsPreview(true);
-    setTimeout(() => {
-      handlePrint();
-    }, 100);
-  };
-
-  const handleMessageSubmit = async (e) => {
+  const handleMessage = async (e) => {
     e.preventDefault();
     if (!currentMessage.trim()) return;
     const newMessages = [
       ...messages,
-      { role: "user", content: currentMessage },
+      { role: "user", content: currentMessage + "\n\n" + inputCode },
     ];
     setMessages(newMessages);
     setCurrentMessage("");
@@ -226,17 +195,11 @@ function CodeConverter() {
     }
   };
 
-  const handleDownload = () => {
-    console.log("Downloading code...", isPreview);
-  };
-
   const handleVoice = () => {
-    console.log("Voice to text...");
     if (!("webkitSpeechRecognition" in window)) {
       alert("Speech Recognition is not supported in this browser.");
       return;
     }
-
     const recognition = new window.webkitSpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
@@ -279,15 +242,22 @@ function CodeConverter() {
   };
 
   const handleDownloadMessage = (message, index) => {
-    const element = document.createElement("a");
-    const file = new Blob([message.content], {
-      type: "text/plain",
-    });
-    element.href = URL.createObjectURL(file);
-    element.download = `response_${index}.txt`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+    const pdfContent = document.createElement("div");
+    pdfContent.innerHTML = `
+      <div style="padding: 20px; font-family: Arial, sans-serif;">
+        <div style="white-space: pre-wrap;">${marked.parse(
+          message.content
+        )}</div>
+      </div>
+    `;
+    const opt = {
+      margin: 1,
+      filename: `response_${index}.pdf`,
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+    };
+
+    html2pdf().set(opt).from(pdfContent).save();
   };
 
   const handleReadAloud = (text) => {
@@ -484,7 +454,7 @@ function CodeConverter() {
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
-                    handleMessageSubmit(e);
+                    handleMessage(e);
                   }
                 }}
               />
@@ -548,25 +518,10 @@ function CodeConverter() {
                   </button>
                   <button
                     className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 group"
-                    onClick={handleSave}
-                    title="Save the chat"
-                  >
-                    <BookmarkIcon className="h-4 w-4 text-gray-600 flex-shrink-0 transition-transform duration-300 group-hover:translate-y-0.5" />
-                  </button>
-                  <button
-                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 group"
                     onClick={handleConvert}
                     title="Convert into code"
                   >
                     <ArrowPathRoundedSquareIcon className="h-4 w-4 text-gray-600 flex-shrink-0 transition-transform duration-300 group-hover:rotate-180" />
-                  </button>
-
-                  <button
-                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 group"
-                    onClick={handleDownload}
-                    title="Download the chat"
-                  >
-                    <ArrowDownTrayIcon className="h-4 w-4 text-gray-600 flex-shrink-0 transition-transform duration-300 group-hover:translate-y-0.5" />
                   </button>
                 </div>
                 <div className="flex gap-2 justify-center items-center mr-2 ml-2 md:ml-0">
@@ -596,7 +551,7 @@ function CodeConverter() {
                   </button>
                   <button
                     className="p-2 rounded-full bg-primary hover:bg-primary/90 group"
-                    onClick={handleMessageSubmit}
+                    onClick={handleMessage}
                     title="Submit"
                   >
                     <ArrowRightIcon className="h-5 w-5 text-white transition-transform duration-300 group-hover:translate-x-0.5" />

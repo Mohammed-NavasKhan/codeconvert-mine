@@ -25,11 +25,10 @@
     "@heroicons/react": "^2.2.0",
     "axios": "^1.8.2",
     "html2pdf.js": "^0.10.3",
+    "marked": "^15.0.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
-    "react-textarea-autosize": "^8.5.7",
-    "react-to-print": "^3.0.5",
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
