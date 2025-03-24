@@ -1,12 +1,12 @@
-# React + Vite
+# React and tailwind css
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+1. npm create vite@latest my-project -- --template react
+2. npm install -D tailwindcss@3 postcss autoprefixer
+3. npx tailwindcss init -p
 
-Currently, two official plugins are available:
+## Docker
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. docker build -t codeconvert .
+2. docker run -d -p 4200:80 --name codeconvert-container codeconvert
+3. docker-compose up -d
+4. docker-compose build => to rebuild

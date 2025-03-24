@@ -9,6 +9,7 @@ import {
   HashtagIcon,
   MicrophoneIcon,
   PaperClipIcon,
+  PencilIcon,
   SparklesIcon,
   SpeakerWaveIcon,
   TagIcon,
@@ -269,6 +270,10 @@ function CodeConverter() {
     setIsLanguageDropdownOpen(!isLanguageDropdownOpen);
   };
 
+  const handleEdit = () => {
+  };
+
+  
   // console.log("Environment: ", import.meta.env.VITE_APP_TITLE);
   console.log("Current Message: ", currentMessage);
   console.log("Messages: ", messages);
@@ -421,6 +426,13 @@ function CodeConverter() {
                                 title="Reply to chat"
                               >
                                 <TagIcon className="h-4 w-4 text-gray-600" />
+                              </button>
+                              <button
+                                onClick={() => handleEdit(message.content)}
+                                className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
+                                title="Read aloud"
+                              >
+                                <PencilIcon className="h-4 w-4 text-gray-600" />
                               </button>
                             </div>
                           )}
