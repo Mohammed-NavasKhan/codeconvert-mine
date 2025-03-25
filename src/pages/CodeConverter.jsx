@@ -14,12 +14,12 @@ import {
   SpeakerWaveIcon,
   TagIcon,
   TrashIcon,
+  XCircleIcon,
 } from "@heroicons/react/16/solid";
 import html2pdf from "html2pdf.js";
 import { marked } from "marked";
 import { useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import MDEditor from "@uiw/react-md-editor";
 
 function CodeConverter() {
   const [inputCode, setInputCode] = useState("");
@@ -32,6 +32,8 @@ function CodeConverter() {
   const [isThinking, setIsThinking] = useState(false);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [isEditMode, setIsEditMode] = useState(false);
+
   const languageOptions = [
     "JavaScript",
     "Python",
@@ -270,11 +272,10 @@ function CodeConverter() {
     setIsLanguageDropdownOpen(!isLanguageDropdownOpen);
   };
 
-  const handleEdit = () => {
+  const handleEdit = (message, index) => {
+    console.log("editing", index);
+    setIsEditMode(!isEditMode);
   };
-
-  
-  // console.log("Environment: ", import.meta.env.VITE_APP_TITLE);
   console.log("Current Message: ", currentMessage);
   console.log("Messages: ", messages);
   return (
@@ -336,7 +337,7 @@ function CodeConverter() {
               </div>
               <div
                 className={`${
-                  isFullscreen ? "fixed inset-0 z-50 bg-white p-4" : ""
+                  isFullscreen ? "fixed inset-0 bg-white p-4" : ""
                 }`}
               >
                 <div className="flex justify-between mb-2 items-center text-sm font-medium">
@@ -369,75 +370,122 @@ function CodeConverter() {
                   <div className="space-y-4">
                     {messages
                       .filter((message) => message.role !== "system")
-                      .map((message, index) => (
-                        <div key={index} className="relative mb-6">
-                          <div
-                            className={`flex ${
-                              message.role === "assistant"
-                                ? "justify-start gap-1"
-                                : "justify-end"
-                            }`}
-                          >
-                            {message.role === "assistant" && (
-                              <SparklesIcon className="h-6 w-6 text-primary" />
-                            )}
+                      .map((message, index) => {
+                        return (
+                          <div key={index} className="relative mb-6">
                             <div
-                              className={`max-w-[80%] p-3 rounded-lg ${
+                              className={`flex ${
                                 message.role === "assistant"
-                                  ? "bg-gray-200 text-gray-800"
-                                  : "bg-primary text-white"
+                                  ? "justify-start gap-1"
+                                  : "justify-end"
                               }`}
                             >
-                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                {message.content}
-                              </ReactMarkdown>
+                              {message.role === "assistant" && (
+                                <SparklesIcon className="h-6 w-6 text-primary" />
+                              )}
+                              <div
+                                className={`max-w-[80%] p-1 rounded-lg ${
+                                  message.role === "assistant"
+                                    ? "bg-gray-200 text-gray-800"
+                                    : "bg-primary text-white"
+                                }`}
+                              >
+                                {isEditMode ? (
+                                  <div className="fixed z-10 inset-0 bg-white">
+                                    <div className="h-full flex flex-col">
+                                      <div className="flex justify-end">
+                                        <button
+                                          onClick={() => {
+                                            setIsEditMode(false);
+                                          }}
+                                          className="p-2 text-primary hover:text-gray-700 flex gap-1 items-center"
+                                          title="Exit Edit Mode"
+                                        >
+                                          <p className="text-sm font-bold underline">
+                                            Save & Exit
+                                          </p>
+                                          <XCircleIcon className="h-4 w-4" />
+                                        </button>
+                                      </div>
+                                      <div className="flex-1 p-4">
+                                        <MDEditor
+                                          value={message.content}
+                                          preview="live"
+                                          height="100%"
+                                          hideToolbar={false}
+                                          // onChange={handleUpdatingDocument}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <MDEditor.Markdown
+                                    source={message.content}
+                                    style={{
+                                      padding: "4px",
+                                      backgroundColor: "transparent",
+                                      color: `${
+                                        message.role === "assistant"
+                                          ? "#24292f"
+                                          : "#fff"
+                                      }`,
+                                    }}
+                                  />
+                                )}
+                              </div>
                             </div>
+                            {message.role === "assistant" && (
+                              <div className="flex ml-6">
+                                <button
+                                  onClick={(e) =>
+                                    handleCopyClipboard(e, message)
+                                  }
+                                  className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
+                                  title="Copy to clipboard"
+                                >
+                                  <ClipboardIcon className="h-4 w-4 text-gray-600" />
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    handleDownloadMessage(message, index)
+                                  }
+                                  className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
+                                  title="Download message"
+                                >
+                                  <ArrowDownTrayIcon className="h-4 w-4 text-gray-600" />
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    handleReadAloud(message.content)
+                                  }
+                                  className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
+                                  title="Read aloud"
+                                >
+                                  <SpeakerWaveIcon className="h-4 w-4 text-gray-600" />
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    setCurrentMessage(message.content)
+                                  }
+                                  className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
+                                  title="Reply to chat"
+                                >
+                                  <TagIcon className="h-4 w-4 text-gray-600" />
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    handleEdit(message.content, index)
+                                  }
+                                  className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
+                                  title="Edit mode"
+                                >
+                                  <PencilIcon className="h-4 w-4 text-gray-600" />
+                                </button>
+                              </div>
+                            )}
                           </div>
-                          {message.role === "assistant" && (
-                            <div className="flex ml-6">
-                              <button
-                                onClick={(e) => handleCopyClipboard(e, message)}
-                                className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
-                                title="Copy to clipboard"
-                              >
-                                <ClipboardIcon className="h-4 w-4 text-gray-600" />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleDownloadMessage(message, index)
-                                }
-                                className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
-                                title="Download message"
-                              >
-                                <ArrowDownTrayIcon className="h-4 w-4 text-gray-600" />
-                              </button>
-                              <button
-                                onClick={() => handleReadAloud(message.content)}
-                                className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
-                                title="Read aloud"
-                              >
-                                <SpeakerWaveIcon className="h-4 w-4 text-gray-600" />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  setCurrentMessage(message.content)
-                                }
-                                className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
-                                title="Reply to chat"
-                              >
-                                <TagIcon className="h-4 w-4 text-gray-600" />
-                              </button>
-                              <button
-                                onClick={() => handleEdit(message.content)}
-                                className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
-                                title="Read aloud"
-                              >
-                                <PencilIcon className="h-4 w-4 text-gray-600" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                        );
+                      })}
                     {isThinking && (
                       <div className="flex justify-start">
                         <div className="max-w-[80%] p-3 rounded-lg bg-gray-200">
@@ -455,7 +503,7 @@ function CodeConverter() {
           <div
             className={`md:fixed md:w-6/12 ${
               isFullscreen ? "left-[25.33%]" : "left-[35.33%]"
-            } bottom-6 mt-6 md:mt-2 z-50`}
+            } bottom-6 mt-6 md:mt-2`}
           >
             <div className="flex flex-col gap-1 bg-white rounded-3xl shadow px-2 py-1 border border-s-gray-100">
               <textarea
@@ -485,7 +533,7 @@ function CodeConverter() {
                     )}
                   </button>
                   {isLanguageDropdownOpen && (
-                    <div className="absolute bottom-10 left-0 mb-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                    <div className="absolute bottom-10 left-0 mb-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
                       {languageOptions.map((lang) => (
                         <button
                           key={lang}
@@ -504,7 +552,6 @@ function CodeConverter() {
                       ))}
                     </div>
                   )}
-
                   <button
                     className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 group"
                     onClick={handleReset}
