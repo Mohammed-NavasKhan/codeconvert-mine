@@ -45,6 +45,15 @@ function CodeConverter() {
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [isEditMode, setIsEditMode] = useState(false);
 
+  const scrollToBottom = () => {
+    if (messageContainerRef.current) {
+      requestAnimationFrame(() => {
+        messageContainerRef.current.scrollTop =
+          messageContainerRef.current.scrollHeight;
+      });
+    }
+  };
+
   const handleReset = () => {
     console.log("Resetting data...");
     setInputCode("");
@@ -77,12 +86,7 @@ function CodeConverter() {
     setMessages(newMessages);
     setCurrentMessage("");
     setIsThinking(true);
-    if (messageContainerRef.current) {
-      setTimeout(() => {
-        messageContainerRef.current.scrollTop =
-          messageContainerRef.current.scrollHeight;
-      }, 100);
-    }
+    scrollToBottom();
     try {
       const url = "https://api.mistral.ai/v1/chat/completions";
       const response = await fetch(url, {
@@ -113,12 +117,7 @@ function CodeConverter() {
       ]);
     } finally {
       setIsThinking(false);
-      if (messageContainerRef.current) {
-        setTimeout(() => {
-          messageContainerRef.current.scrollTop =
-            messageContainerRef.current.scrollHeight;
-        }, 100);
-      }
+      scrollToBottom();
     }
   };
 
@@ -135,12 +134,7 @@ function CodeConverter() {
     setMessages(newMessages);
     setCurrentMessage("");
     setIsThinking(true);
-    if (messageContainerRef.current) {
-      setTimeout(() => {
-        messageContainerRef.current.scrollTop =
-          messageContainerRef.current.scrollHeight;
-      }, 100);
-    }
+    scrollToBottom();
     try {
       const url = "https://api.mistral.ai/v1/chat/completions";
       const response = await fetch(url, {
@@ -170,12 +164,7 @@ function CodeConverter() {
       ]);
     } finally {
       setIsThinking(false);
-      if (messageContainerRef.current) {
-        setTimeout(() => {
-          messageContainerRef.current.scrollTop =
-            messageContainerRef.current.scrollHeight;
-        }, 100);
-      }
+      scrollToBottom();
     }
   };
 
@@ -192,12 +181,7 @@ function CodeConverter() {
     setMessages(newMessages);
     setCurrentMessage("");
     setIsThinking(true);
-    if (messageContainerRef.current) {
-      setTimeout(() => {
-        messageContainerRef.current.scrollTop =
-          messageContainerRef.current.scrollHeight;
-      }, 100);
-    }
+    scrollToBottom();
     try {
       const url = "https://api.mistral.ai/v1/chat/completions";
       const response = await fetch(url, {
@@ -227,12 +211,7 @@ function CodeConverter() {
       ]);
     } finally {
       setIsThinking(false);
-      if (messageContainerRef.current) {
-        setTimeout(() => {
-          messageContainerRef.current.scrollTop =
-            messageContainerRef.current.scrollHeight;
-        }, 100);
-      }
+      scrollToBottom();
     }
   };
 
@@ -310,10 +289,10 @@ function CodeConverter() {
     setIsLanguageDropdownOpen(!isLanguageDropdownOpen);
   };
 
-  const handleEdit = (message, index) => {
-    console.log("editing", index);
+  const handleEdit = () => {
     setIsEditMode(!isEditMode);
   };
+  
   console.log("Current Message: ", currentMessage);
   console.log("Messages: ", messages);
   return (
@@ -446,15 +425,17 @@ function CodeConverter() {
                                           <XCircleIcon className="h-4 w-4" />
                                         </button>
                                       </div>
-                                      <div className="flex-1 p-4">
-                                        <MDEditor
-                                          value={message.content}
-                                          preview="live"
-                                          height="100%"
-                                          hideToolbar={false}
-                                          // onChange={handleUpdatingDocument}
-                                        />
-                                      </div>
+                                      {message.content && (
+                                        <div className="flex-1 p-4">
+                                          <MDEditor
+                                            value={message.content}
+                                            preview="live"
+                                            height="100%"
+                                            hideToolbar={false}
+                                            // onChange={handleUpdatingDocument}
+                                          />
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 ) : (
@@ -512,9 +493,7 @@ function CodeConverter() {
                                   <TagIcon className="h-4 w-4 text-gray-600" />
                                 </button>
                                 <button
-                                  onClick={() =>
-                                    handleEdit(message.content, index)
-                                  }
+                                  onClick={() => handleEdit(message.content)}
                                   className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
                                   title="Edit mode"
                                 >
