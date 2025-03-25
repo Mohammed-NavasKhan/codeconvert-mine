@@ -18,10 +18,21 @@ import {
 } from "@heroicons/react/16/solid";
 import html2pdf from "html2pdf.js";
 import { marked } from "marked";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import MDEditor from "@uiw/react-md-editor";
 
 function CodeConverter() {
+  const messageContainerRef = useRef(null);
+
+  const languageOptions = [
+    "JavaScript",
+    "Python",
+    "Java",
+    "Rust",
+    "PHP",
+    "Swift",
+  ];
+
   const [inputCode, setInputCode] = useState("");
   const [messages, setMessages] = useState([
     { role: "system", content: "You are a helpful assistant." },
@@ -33,15 +44,6 @@ function CodeConverter() {
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [isEditMode, setIsEditMode] = useState(false);
-
-  const languageOptions = [
-    "JavaScript",
-    "Python",
-    "Java",
-    "Rust",
-    "PHP",
-    "Swift",
-  ];
 
   const handleReset = () => {
     console.log("Resetting data...");
@@ -75,6 +77,12 @@ function CodeConverter() {
     setMessages(newMessages);
     setCurrentMessage("");
     setIsThinking(true);
+    if (messageContainerRef.current) {
+      setTimeout(() => {
+        messageContainerRef.current.scrollTop =
+          messageContainerRef.current.scrollHeight;
+      }, 100);
+    }
     try {
       const url = "https://api.mistral.ai/v1/chat/completions";
       const response = await fetch(url, {
@@ -105,6 +113,12 @@ function CodeConverter() {
       ]);
     } finally {
       setIsThinking(false);
+      if (messageContainerRef.current) {
+        setTimeout(() => {
+          messageContainerRef.current.scrollTop =
+            messageContainerRef.current.scrollHeight;
+        }, 100);
+      }
     }
   };
 
@@ -121,6 +135,12 @@ function CodeConverter() {
     setMessages(newMessages);
     setCurrentMessage("");
     setIsThinking(true);
+    if (messageContainerRef.current) {
+      setTimeout(() => {
+        messageContainerRef.current.scrollTop =
+          messageContainerRef.current.scrollHeight;
+      }, 100);
+    }
     try {
       const url = "https://api.mistral.ai/v1/chat/completions";
       const response = await fetch(url, {
@@ -150,6 +170,12 @@ function CodeConverter() {
       ]);
     } finally {
       setIsThinking(false);
+      if (messageContainerRef.current) {
+        setTimeout(() => {
+          messageContainerRef.current.scrollTop =
+            messageContainerRef.current.scrollHeight;
+        }, 100);
+      }
     }
   };
 
@@ -166,6 +192,12 @@ function CodeConverter() {
     setMessages(newMessages);
     setCurrentMessage("");
     setIsThinking(true);
+    if (messageContainerRef.current) {
+      setTimeout(() => {
+        messageContainerRef.current.scrollTop =
+          messageContainerRef.current.scrollHeight;
+      }, 100);
+    }
     try {
       const url = "https://api.mistral.ai/v1/chat/completions";
       const response = await fetch(url, {
@@ -195,6 +227,12 @@ function CodeConverter() {
       ]);
     } finally {
       setIsThinking(false);
+      if (messageContainerRef.current) {
+        setTimeout(() => {
+          messageContainerRef.current.scrollTop =
+            messageContainerRef.current.scrollHeight;
+        }, 100);
+      }
     }
   };
 
@@ -361,6 +399,7 @@ function CodeConverter() {
                 </div>
 
                 <div
+                  ref={messageContainerRef}
                   className={`w-full ${
                     isFullscreen
                       ? "h-[calc(100vh-210px)]"
