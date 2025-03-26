@@ -120,7 +120,10 @@ export default function ChatbotPlugin({ isOpen, setIsOpen }) {
             </div>
 
             {/* Chat Messages */}
-            <div className="h-64 overflow-auto p-3 flex flex-col gap-2">
+            <div
+              ref={chatRef}
+              className="h-64 overflow-auto p-3 flex flex-col gap-2"
+            >
               {messages.map((msg, index) => (
                 <div
                   key={index}

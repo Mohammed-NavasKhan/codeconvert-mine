@@ -23,7 +23,6 @@ import MDEditor from "@uiw/react-md-editor";
 
 function CodeConverter() {
   const messageContainerRef = useRef(null);
-
   const languageOptions = [
     "JavaScript",
     "Python",
@@ -32,7 +31,6 @@ function CodeConverter() {
     "PHP",
     "Swift",
   ];
-
   const [inputCode, setInputCode] = useState("");
   const [messages, setMessages] = useState([
     { role: "system", content: "You are a helpful assistant." },
@@ -44,6 +42,8 @@ function CodeConverter() {
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [isEditMode, setIsEditMode] = useState(false);
+  const [editingContent, setEditingContent] = useState("");
+  const [editingIndex, setEditingIndex] = useState(null);
 
   const scrollToBottom = () => {
     if (messageContainerRef.current) {
@@ -289,10 +289,29 @@ function CodeConverter() {
     setIsLanguageDropdownOpen(!isLanguageDropdownOpen);
   };
 
-  const handleEdit = () => {
-    setIsEditMode(!isEditMode);
+  const handleEdit = (content, index) => {
+    setIsEditMode(true);
+    setEditingContent(content);
+    setEditingIndex(index);
   };
-  
+
+  const handleSaveEdit = () => {
+    if (editingIndex !== null) {
+      const updatedMessages = messages.map((msg, idx) => {
+        if (idx === editingIndex + 1 && msg.role === "assistant") {
+          return {
+            ...msg,
+            content: editingContent,
+          };
+        }
+        return msg;
+      });
+      setMessages(updatedMessages);
+    }
+    setIsEditMode(false);
+    setEditingIndex(null);
+  };
+
   console.log("Current Message: ", currentMessage);
   console.log("Messages: ", messages);
   return (
@@ -413,9 +432,7 @@ function CodeConverter() {
                                     <div className="h-full flex flex-col">
                                       <div className="flex justify-end">
                                         <button
-                                          onClick={() => {
-                                            setIsEditMode(false);
-                                          }}
+                                          onClick={handleSaveEdit}
                                           className="p-2 text-primary hover:text-gray-700 flex gap-1 items-center"
                                           title="Exit Edit Mode"
                                         >
@@ -425,17 +442,15 @@ function CodeConverter() {
                                           <XCircleIcon className="h-4 w-4" />
                                         </button>
                                       </div>
-                                      {message.content && (
-                                        <div className="flex-1 p-4">
-                                          <MDEditor
-                                            value={message.content}
-                                            preview="live"
-                                            height="100%"
-                                            hideToolbar={false}
-                                            // onChange={handleUpdatingDocument}
-                                          />
-                                        </div>
-                                      )}
+                                      <div className="flex-1 p-4">
+                                        <MDEditor
+                                          value={editingContent}
+                                          onChange={setEditingContent}
+                                          preview="live"
+                                          height="100%"
+                                          hideToolbar={false}
+                                        />
+                                      </div>
                                     </div>
                                   </div>
                                 ) : (
@@ -493,7 +508,9 @@ function CodeConverter() {
                                   <TagIcon className="h-4 w-4 text-gray-600" />
                                 </button>
                                 <button
-                                  onClick={() => handleEdit(message.content)}
+                                  onClick={() =>
+                                    handleEdit(message.content, index)
+                                  }
                                   className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
                                   title="Edit mode"
                                 >

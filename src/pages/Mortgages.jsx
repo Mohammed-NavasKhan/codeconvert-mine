@@ -1,40 +1,44 @@
-import React,{useState} from "react";
-import { ArrowRightIcon, MicrophoneIcon, HomeIcon } from "@heroicons/react/16/solid";
+import React, { useState } from "react";
+import {
+  ArrowRightIcon,
+  MicrophoneIcon,
+  HomeIcon,
+} from "@heroicons/react/16/solid";
 
 const Mortgages = () => {
-    const [isListening, setIsListening] = useState(false);
-    const [inputText, setInputText] = useState("");
+  const [isListening, setIsListening] = useState(false);
+  const [inputText, setInputText] = useState("");
 
-    const handleVoice = () => {
-        if (!("webkitSpeechRecognition" in window)) {
-          alert("Speech Recognition is not supported in this browser.");
-          return;
-        }
-    
-        const recognition = new window.webkitSpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        recognition.lang = "en-US";
-    
-        recognition.onstart = () => {
-          setIsListening(true);
-        };
-    
-        recognition.onresult = (event) => {
-          const transcript = event.results[0][0].transcript;
-          setInputText(transcript);
-        };
-    
-        recognition.onerror = (event) => {
-          console.error("Speech recognition error", event);
-        };
-    
-        recognition.onend = () => {
-          setIsListening(false);
-        };
-    
-        recognition.start();
-      };
+  const handleVoice = () => {
+    if (!("webkitSpeechRecognition" in window)) {
+      alert("Speech Recognition is not supported in this browser.");
+      return;
+    }
+
+    const recognition = new window.webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-US";
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setInputText(transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error", event);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
+  };
 
   const handlePrompt = () => {
     console.log("Adding Prompt...");
@@ -43,12 +47,15 @@ const Mortgages = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-4xl mb-4">
-        <a href="/" className="inline-flex items-center text-primary hover:text-primary/80 gap-2">
+        <a
+          href="/"
+          className="inline-flex items-center text-primary hover:text-primary/80 gap-2"
+        >
           <HomeIcon className="h-5 w-5" />
           <span>Back to Home</span>
         </a>
       </div>
-      
+
       <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg p-6">
         {/* Header */}
         <div className="flex items-center justify-between  pb-4 mb-6">
@@ -67,10 +74,16 @@ const Mortgages = () => {
             onChange={(e) => setInputText(e.target.value)}
           />
           <button
-            className={`p-2 rounded-full  ${ isListening ? "bg-red-500" : "bg-gray-100 hover:bg-gray-200"}`}
+            className={`p-2 rounded-full  ${
+              isListening ? "bg-red-500" : "bg-gray-100 hover:bg-gray-200"
+            }`}
             onClick={handleVoice}
           >
-            <MicrophoneIcon className={`h-5 w-5  ${isListening ? "text-white" : "text-gray-600"}`} />
+            <MicrophoneIcon
+              className={`h-5 w-5  ${
+                isListening ? "text-white" : "text-gray-600"
+              }`}
+            />
           </button>
           <button
             className="p-2 rounded-full bg-primary hover:bg-primary/90"
