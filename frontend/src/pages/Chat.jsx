@@ -381,7 +381,7 @@ function Chat() {
                     </div>
                   </div>
                   {message.role === "assistant" && (
-                    <div className="flex ml-6">
+                    <div className="flex ml-6 mt-1">
                       <button
                         onClick={(e) => handleCopyClipboard(e, message)}
                         className="relative -bottom-1 right-0 p-1 hover:bg-gray-300 rounded-md hover:rounded-md transition-colors"
