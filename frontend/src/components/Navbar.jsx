@@ -1,4 +1,4 @@
-import { BuildingLibraryIcon, LockClosedIcon } from "@heroicons/react/16/solid";
+import { BuildingLibraryIcon, CpuChipIcon, LockClosedIcon } from "@heroicons/react/16/solid";
 import { Link } from "react-router-dom";
 
 function Navbar() {
@@ -59,6 +59,13 @@ function Navbar() {
             >
               <BuildingLibraryIcon className="w-5 h-5" />
               <span>Modernisation</span>
+            </Link>
+            <Link
+              to="/chat"
+              className="text-md font-medium text-black flex align-top gap-1"
+            >
+              <CpuChipIcon className="w-5 h-5" />
+              <span>Chat</span>
             </Link>
             <Link
               to="/"

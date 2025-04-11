@@ -4,6 +4,7 @@ import Breadcrumb from './components/Breadcrumb';
 import Home from './pages/Home';
 import CodeConverter from './pages/CodeConverter';
 import Mortgages from './pages/Mortgages'
+import Chat from './pages/Chat';
 function App() {
   return (
     <Router>
@@ -14,6 +15,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/modernisation" element={<CodeConverter />} />
           <Route path="/mortgages" element={<Mortgages />} />
+          <Route path="/chat" element={<Chat />} />
 
         </Routes>
       </div>
