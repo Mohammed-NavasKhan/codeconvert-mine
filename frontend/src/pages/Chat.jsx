@@ -313,11 +313,11 @@ function Chat() {
   };
   return (
     <div
-      className="px-4 py-6 w-full h-[calc(100vh-140px)] overflow-y-auto bg-gray-50"
+      className="px-4 py-6 h-[calc(100vh-140px)] overflow-y-auto bg-gray-50"
       ref={messageContainerRef}
     >
       <div className="flex flex-col">
-        <div className="space-y-4">
+        <div className="space-y-4 w-full max-w-3xl mx-auto pb-28">
           {messages
             .filter((message) => message.role !== "system")
             .map((message, index) => {
@@ -424,14 +424,14 @@ function Chat() {
             })}
           {isThinking && (
             <div className="flex justify-start">
-              <div className="max-w-[80%] p-3 rounded-lg bg-gray-200">
+              <div className="max-w-[80%] p-3 rounded-lg bg-gray-200 ml-4">
                 <div className="flex items-center gap-2">Thinking...</div>
               </div>
             </div>
           )}
         </div>
         <div
-          className={`md:fixed md:w-6/12 left-[25.33%] bottom-6 mt-6 md:mt-2`}
+          className={`fixed md:w-6/12 md:left-[25.33%] bottom-6 mt-6 md:mt-2`}
         >
           <div className="flex flex-col gap-1 bg-white rounded-3xl shadow px-2 py-1 border border-s-gray-100">
             <textarea

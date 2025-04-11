@@ -5,7 +5,7 @@ function Navbar() {
   return (
     <nav className="bg-[#11b67a] text-white">
       <div className="container mx-auto px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex flex-wrap items-center justify-between h-28 md:h-16">
           <Link to="/" className="text-xl font-medium">
             <div className="icon-container">
               <div className="shape-container">
