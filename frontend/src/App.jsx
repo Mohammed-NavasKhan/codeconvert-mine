@@ -9,14 +9,13 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <Breadcrumb />
+        {/* <Navbar />
+        <Breadcrumb /> */}
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Chat />} />
           <Route path="/modernisation" element={<CodeConverter />} />
           <Route path="/mortgages" element={<Mortgages />} />
-          <Route path="/chat" element={<Chat />} />
-
+          <Route path="/home" element={<Home />} />
         </Routes>
       </div>
     </Router>
