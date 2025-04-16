@@ -17,10 +17,10 @@ import { createContext, useContext, useState } from "react";
 
 const SidebarContext = createContext();
 
-export default function Sidebar({ children }) {
+export default function Sidebar() {
   const [expanded, setExpanded] = useState(true);
   return (
-    <div className="flex">
+    <div className="flex fixed">
       <aside className="h-screen">
         <nav className="h-full flex flex-col bg-white border-r shadow-sm">
           <div className="p-4 pb-2 flex justify-between items-center">
@@ -68,9 +68,9 @@ export default function Sidebar({ children }) {
               } `}
             >
               <div className="leading-4">
-                <h4 className="font-semibold">constGenius</h4>
+                <h4 className="font-semibold">haythamGenius</h4>
                 <span className="text-xs text-gray-600">
-                  constgenius@gmail.com
+                  haythamgenius@gmail.com
                 </span>
               </div>
               <MoreVertical size={20} />
