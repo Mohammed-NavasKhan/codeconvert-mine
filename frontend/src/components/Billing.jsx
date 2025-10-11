@@ -3,15 +3,20 @@ import { pdf } from "@react-pdf/renderer";
 import BillPDF from "./BillPDF";
 
 const Billing = ({ products }) => {
-  const [localProducts, setLocalProducts] = useState(products.map(p => ({ ...p })));
+  const [localProducts, setLocalProducts] = useState(
+    products.map((p) => ({ ...p }))
+  );
   const [total, setTotal] = useState(0);
 
   React.useEffect(() => {
-    setLocalProducts(products.map(p => ({ ...p })));
+    setLocalProducts(products.map((p) => ({ ...p })));
   }, [products]);
 
   React.useEffect(() => {
-    const totalValue = localProducts.reduce((sum, i) => sum + (i.price || 0) * (i.quantity || 0), 0);
+    const totalValue = localProducts.reduce(
+      (sum, i) => sum + (i.price || 0) * (i.quantity || 0),
+      0
+    );
     setTotal(totalValue);
   }, [localProducts]);
 
@@ -19,6 +24,11 @@ const Billing = ({ products }) => {
     const updated = [...localProducts];
     updated[index][field] = Number(value);
     setLocalProducts(updated);
+  };
+
+  const handleDelete = (index) => {
+    const updatedProducts = localProducts.filter((_, i) => i !== index);
+    setLocalProducts(updatedProducts);
   };
 
   const handlePrint = async () => {
@@ -55,6 +65,7 @@ const Billing = ({ products }) => {
             <th className="border p-2">Price</th>
             <th className="border p-2">Qty</th>
             <th className="border p-2">Total</th>
+            <th className="border p-2">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -74,11 +85,21 @@ const Billing = ({ products }) => {
                   type="number"
                   className="w-16 border rounded p-1"
                   value={item.quantity}
-                  onChange={(e) => handleChange(index, "quantity", e.target.value)}
+                  onChange={(e) =>
+                    handleChange(index, "quantity", e.target.value)
+                  }
                 />
               </td>
               <td className="border p-2 text-right">
                 {((item.quantity || 0) * (item.price || 0)).toFixed(2)}
+              </td>
+              <td className="border p-2 text-center">
+                <button
+                  onClick={() => handleDelete(index)}
+                  className="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded"
+                >
+                  ❌
+                </button>
               </td>
             </tr>
           ))}

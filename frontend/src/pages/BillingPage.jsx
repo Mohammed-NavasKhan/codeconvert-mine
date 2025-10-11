@@ -14,7 +14,6 @@ function BillingPage() {
       <div className="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow space-y-8">
         {/* Product selection section */}
         <ProductForm setProducts={setProducts} />
-        <ProductList products={products} setProducts={setProducts} />
         {/* Billing section */}
         <Billing products={products} />
       </div>
