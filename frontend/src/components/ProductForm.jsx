@@ -23,6 +23,7 @@ const predefinedProducts = [
   { name: "Vests" },
   { name: "Briefs" },
   { name: "Track" },
+  { name: "Towel" },
 ];
 
 export default function ProductForm({ setProducts }) {
@@ -71,7 +72,7 @@ export default function ProductForm({ setProducts }) {
       onSubmit={handleSubmit}
       className="flex flex-col md:flex-row gap-3 mb-6 justify-between"
     >
-      <div className="relative w-full md:w-1/3" ref={dropdownRef}>
+      <div className="relative w-full md:w-1/3" ref={dropdownRef} style={{ zIndex: 1000 }}>
         <input
           type="text"
           placeholder="Search Product..."
@@ -102,7 +103,7 @@ export default function ProductForm({ setProducts }) {
           className="border rounded p-2 w-full"
         />
         {isDropdownOpen && (
-          <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+          <div className="fixed mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto" style={{ zIndex: 1050 }}>
             {filteredProducts.map((p, index) => (
               <div
                 key={index}

@@ -55,10 +55,12 @@ const Billing = ({ products }) => {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Billing</h2>
+    <div className="relative flex flex-col h-full">
+      {/* Scrollable content area */}
+      <div className="overflow-auto flex-1 pr-4 pl-4 pt-4 pb-32">
+        <h2 className="text-xl font-bold mb-4">Billing</h2>
 
-      <table className="w-full border-collapse border border-gray-300">
+        <table className="w-full border-collapse border border-gray-300">
         <thead>
           <tr>
             <th className="border p-2">Product</th>
@@ -106,17 +108,23 @@ const Billing = ({ products }) => {
         </tbody>
       </table>
 
-      <div className="text-right mt-4 font-bold">
-        Total: ₹{total.toFixed(2)}
       </div>
-
-      <div className="mt-4">
-        <button
-          onClick={handlePrint}
-          className="bg-green-500 text-white px-4 py-2 rounded"
-        >
-          🖨️ Print Bill
-        </button>
+      
+      {/* Fixed bottom section */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4">
+        <div className="text-right mb-2">
+          <span className="text-xl font-bold">
+            Total: ₹{total.toFixed(2)}
+          </span>
+        </div>
+        <div className="flex justify-end">
+          <button
+            onClick={handlePrint}
+            className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-semibold shadow-md transition-colors duration-200"
+          >
+            🖨️ Print Bill
+          </button>
+        </div>
       </div>
     </div>
   );
