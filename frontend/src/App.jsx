@@ -6,6 +6,7 @@ import CodeConverter from "./pages/CodeConverter";
 import Mortgages from "./pages/Mortgages";
 import Chat from "./pages/Chat";
 import Sidebar from "./components/Sidebar";
+import BillingPage from "./pages/BillingPage";
 
 function App() {
   return (
@@ -13,9 +14,10 @@ function App() {
       <div className="min-h-screen bg-gray-50">
         {/* <Navbar />
         <Breadcrumb /> */}
-        <Sidebar />
+        {/* <Sidebar /> */}
         <Routes>
-          <Route path="/" element={<Chat />} />
+          {/* <Route path="/" element={<Chat />} /> */}
+          <Route path="/" element={<BillingPage />} />
           <Route path="/modernisation" element={<CodeConverter />} />
           <Route path="/mortgages" element={<Mortgages />} />
           <Route path="/home" element={<Homepage />} />
