@@ -24,7 +24,7 @@ const Billing = ({ products }) => {
   const handlePrint = async () => {
     const lineHeight = 20;
     const topBottomMargin = 40;
-    const minHeight = 283.46; // 100mm minimum
+    const minHeight = 983.46; // 100mm minimum
 
     const dynamicHeight = Math.max(
       minHeight,
