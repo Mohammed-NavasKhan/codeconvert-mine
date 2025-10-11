@@ -15,8 +15,14 @@ const BillPDF = ({ selectedProducts, total, height }) => {
     title: {
       fontSize: 30,
       textAlign: "center",
-      marginBottom: 10,
+      marginBottom: 5,
       fontWeight: "bold",
+    },
+    date: {
+      fontSize: 9,
+      textAlign: "center",
+      marginBottom: 10,
+      color: "#666",
     },
     table: { 
       display: "table", 
@@ -54,6 +60,13 @@ const BillPDF = ({ selectedProducts, total, height }) => {
     <Document>
       <Page size={{ width: 226.77, height: height }} style={styles.page}>
         <Text style={styles.title}>Rasi</Text>
+        <Text style={styles.date}>{new Date().toLocaleDateString('en-IN', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}</Text>
 
         <View style={styles.table}>
           <View style={styles.tableRow}>

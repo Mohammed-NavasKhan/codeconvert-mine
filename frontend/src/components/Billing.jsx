@@ -58,64 +58,73 @@ const Billing = ({ products }) => {
     <div className="relative flex flex-col h-full">
       {/* Scrollable content area */}
       <div className="overflow-auto flex-1 pr-4 pl-4 pt-4 pb-32">
-        <h2 className="text-xl font-bold mb-4">Billing</h2>
-
+        <div className="mb-2 text-gray-600 flex justify-between items-center">
+          <h2 className="text-xl font-bold mb-4">Billing</h2>
+          <p>
+            {new Date().toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </p>
+        </div>
         <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr>
-            <th className="border p-2">Product</th>
-            <th className="border p-2">Price</th>
-            <th className="border p-2">Qty</th>
-            <th className="border p-2">Total</th>
-            <th className="border p-2">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {localProducts.map((item, index) => (
-            <tr key={index}>
-              <td className="border p-2">{item.name}</td>
-              <td className="border p-2">
-                <input
-                  type="number"
-                  className="w-20 border rounded p-1"
-                  value={item.price}
-                  onChange={(e) => handleChange(index, "price", e.target.value)}
-                />
-              </td>
-              <td className="border p-2">
-                <input
-                  type="number"
-                  className="w-16 border rounded p-1"
-                  value={item.quantity}
-                  onChange={(e) =>
-                    handleChange(index, "quantity", e.target.value)
-                  }
-                />
-              </td>
-              <td className="border p-2 text-right">
-                {((item.quantity || 0) * (item.price || 0)).toFixed(2)}
-              </td>
-              <td className="border p-2 text-center">
-                <button
-                  onClick={() => handleDelete(index)}
-                  className="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded"
-                >
-                  ❌
-                </button>
-              </td>
+          <thead>
+            <tr>
+              <th className="border p-2">Product</th>
+              <th className="border p-2">Price</th>
+              <th className="border p-2">Qty</th>
+              <th className="border p-2">Total</th>
+              <th className="border p-2">Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-
+          </thead>
+          <tbody>
+            {localProducts.map((item, index) => (
+              <tr key={index}>
+                <td className="border p-2">{item.name}</td>
+                <td className="border p-2">
+                  <input
+                    type="number"
+                    className="w-20 border rounded p-1"
+                    value={item.price}
+                    onChange={(e) =>
+                      handleChange(index, "price", e.target.value)
+                    }
+                  />
+                </td>
+                <td className="border p-2">
+                  <input
+                    type="number"
+                    className="w-16 border rounded p-1"
+                    value={item.quantity}
+                    onChange={(e) =>
+                      handleChange(index, "quantity", e.target.value)
+                    }
+                  />
+                </td>
+                <td className="border p-2 text-right">
+                  {((item.quantity || 0) * (item.price || 0)).toFixed(2)}
+                </td>
+                <td className="border p-2 text-center">
+                  <button
+                    onClick={() => handleDelete(index)}
+                    className="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded"
+                  >
+                    ❌
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      
+
       {/* Fixed bottom section */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4">
         <div className="text-right mb-2">
-          <span className="text-xl font-bold">
-            Total: ₹{total.toFixed(2)}
-          </span>
+          <span className="text-xl font-bold">Total: ₹{total.toFixed(2)}</span>
         </div>
         <div className="flex justify-end">
           <button
