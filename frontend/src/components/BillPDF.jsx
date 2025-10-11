@@ -13,7 +13,7 @@ const BillPDF = ({ selectedProducts, total, height }) => {
       height: height, // dynamic height
     },
     title: {
-      fontSize: 20,
+      fontSize: 30,
       textAlign: "center",
       marginBottom: 10,
       fontWeight: "bold",
@@ -48,7 +48,7 @@ const BillPDF = ({ selectedProducts, total, height }) => {
   return (
     <Document>
       <Page size={{ width: 226.77, height: height }} style={styles.page}>
-        <Text style={styles.title}>Rasi Mens Wear</Text>
+        <Text style={styles.title}>Rasi</Text>
 
         <View style={styles.table}>
           <View style={styles.tableRow}>
