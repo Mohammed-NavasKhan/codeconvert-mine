@@ -13,9 +13,9 @@ const BillPDF = ({ selectedProducts, total, height }) => {
       height: height, // dynamic height
     },
     title: {
-      fontSize: 12,
+      fontSize: 20,
       textAlign: "center",
-      marginBottom: 6,
+      marginBottom: 10,
       fontWeight: "bold",
     },
     table: { display: "table", width: "100%", marginTop: 4 },
