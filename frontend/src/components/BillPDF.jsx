@@ -4,7 +4,10 @@ import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
 const BillPDF = ({ selectedProducts, total, height }) => {
   const styles = StyleSheet.create({
     page: {
-      padding: 8,
+      paddingTop: 8,
+      paddingBottom: 8,
+      paddingLeft: 10,
+      paddingRight: 10,
       fontSize: 9,
       width: 226.77, // 80mm width
       height: height, // dynamic height
@@ -16,19 +19,27 @@ const BillPDF = ({ selectedProducts, total, height }) => {
       fontWeight: "bold",
     },
     table: { display: "table", width: "100%", marginTop: 4 },
-    tableRow: { flexDirection: "row" },
+    tableRow: { 
+      flexDirection: "row",
+      width: "100%",
+      marginBottom: 2
+    },
     tableColHeader: {
-      width: "25%",
+      width: "auto",
       borderBottom: 1,
       borderColor: "#000",
       fontWeight: "bold",
       padding: 2,
+      flexGrow: 1,
+      textAlign: "left",
     },
     tableCol: {
-      width: "25%",
+      width: "auto",
       borderBottom: 0.5,
       borderColor: "#aaa",
       padding: 2,
+      flexGrow: 1,
+      textAlign: "left",
     },
     total: { marginTop: 6, textAlign: "right", fontWeight: "bold" },
     footer: { marginTop: 8, textAlign: "center", fontSize: 8 },
@@ -41,6 +52,7 @@ const BillPDF = ({ selectedProducts, total, height }) => {
 
         <View style={styles.table}>
           <View style={styles.tableRow}>
+            <Text style={styles.tableColHeader}></Text>
             <Text style={styles.tableColHeader}>Item</Text>
             <Text style={styles.tableColHeader}>Qty</Text>
             <Text style={styles.tableColHeader}>Price</Text>
@@ -49,6 +61,7 @@ const BillPDF = ({ selectedProducts, total, height }) => {
 
           {selectedProducts.map((p, i) => (
             <View key={i} style={styles.tableRow}>
+              <Text style={styles.tableCol}></Text>
               <Text style={styles.tableCol}>{p.name}</Text>
               <Text style={styles.tableCol}>{p.quantity}</Text>
               <Text style={styles.tableCol}>{p.price}</Text>
@@ -59,7 +72,7 @@ const BillPDF = ({ selectedProducts, total, height }) => {
           ))}
         </View>
 
-        <Text style={styles.total}>Total: ₹{(total || 0).toFixed(2)}</Text>
+        <Text style={styles.total}>Total: {(total || 0).toFixed(2)}</Text>
         <Text style={styles.footer}>Thank you for shopping!</Text>
       </Page>
     </Document>
