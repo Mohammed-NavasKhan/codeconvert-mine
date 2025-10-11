@@ -18,26 +18,31 @@ const BillPDF = ({ selectedProducts, total, height }) => {
       marginBottom: 10,
       fontWeight: "bold",
     },
-    table: { display: "table", width: "100%", marginTop: 4 },
+    table: { 
+      display: "table", 
+      width: "100%", 
+      marginTop: 4
+    },
     tableRow: { 
       flexDirection: "row",
       width: "100%",
-      marginBottom: 2
+      borderBottom: 0.5,
+      borderColor: "#000",
+      paddingTop: 2,
+      paddingBottom: 2
     },
     tableColHeader: {
       width: "auto",
-      borderBottom: 1,
-      borderColor: "#000",
       fontWeight: "bold",
-      padding: 2,
+      padding: 4,
       flexGrow: 1,
       textAlign: "left",
+      borderBottom: 1,
+      borderColor: "#000"
     },
     tableCol: {
       width: "auto",
-      borderBottom: 0.5,
-      borderColor: "#aaa",
-      padding: 2,
+      padding: 4,
       flexGrow: 1,
       textAlign: "left",
     },
@@ -52,7 +57,6 @@ const BillPDF = ({ selectedProducts, total, height }) => {
 
         <View style={styles.table}>
           <View style={styles.tableRow}>
-            <Text style={styles.tableColHeader}></Text>
             <Text style={styles.tableColHeader}>Item</Text>
             <Text style={styles.tableColHeader}>Qty</Text>
             <Text style={styles.tableColHeader}>Price</Text>
@@ -61,7 +65,6 @@ const BillPDF = ({ selectedProducts, total, height }) => {
 
           {selectedProducts.map((p, i) => (
             <View key={i} style={styles.tableRow}>
-              <Text style={styles.tableCol}></Text>
               <Text style={styles.tableCol}>{p.name}</Text>
               <Text style={styles.tableCol}>{p.quantity}</Text>
               <Text style={styles.tableCol}>{p.price}</Text>
