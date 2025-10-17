@@ -87,7 +87,6 @@ const BillPDF = ({ selectedProducts, total, height }) => {
             <Text style={styles.tableColHeader}>Qty</Text>
             <Text style={styles.tableColHeader}>MRP</Text>
             <Text style={styles.tableColHeader}>Sale</Text>
-            <Text style={styles.tableColHeader}>Save</Text>
             <Text style={styles.tableColHeader}>Net</Text>
           </View>
 
@@ -96,10 +95,7 @@ const BillPDF = ({ selectedProducts, total, height }) => {
               <Text style={styles.tableCol}>{p.name}</Text>
               <Text style={styles.tableCol}>{p.quantity}</Text>
               <Text style={styles.tableCol}>{p.mrp}</Text>
-              <Text style={styles.tableCol}>{p.sellingPrice}</Text>
-              <Text style={styles.tableCol}>
-                {((p.mrp - p.sellingPrice) * p.quantity).toFixed(2)}
-              </Text>
+              <Text style={styles.tableCol}>{p.sellingPrice}</Text>              
               <Text style={styles.tableCol}>
                 {(p.sellingPrice * p.quantity).toFixed(2)}
               </Text>
