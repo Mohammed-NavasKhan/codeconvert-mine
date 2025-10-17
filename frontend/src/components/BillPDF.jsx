@@ -51,9 +51,22 @@ const BillPDF = ({ selectedProducts, total, height }) => {
       flexGrow: 1,
       textAlign: "left",
     },
-    total: { marginTop: 6, textAlign: "right", fontWeight: "bold", fontSize: 12 },
-    discount: { marginTop: 6, textAlign: "right", fontWeight: "bold", fontSize: 8 },
-    footer: { marginTop: 8, textAlign: "center", fontSize: 9 },
+    total: { 
+      marginTop: 2,
+      textAlign: "right", 
+      fontWeight: "bold", 
+      fontSize: 12 
+    },
+    discount: { 
+      marginBottom: 2,
+      textAlign: "right", 
+      fontSize: 10 
+    },
+    footer: { 
+      marginTop: 8, 
+      textAlign: "center", 
+      fontSize: 9 
+    },
   });
 
   return (
@@ -73,9 +86,9 @@ const BillPDF = ({ selectedProducts, total, height }) => {
             <Text style={styles.tableColHeader}>Item</Text>
             <Text style={styles.tableColHeader}>Qty</Text>
             <Text style={styles.tableColHeader}>MRP</Text>
-            <Text style={styles.tableColHeader}>Price</Text>
-            <Text style={styles.tableColHeader}>Disc</Text>
-            <Text style={styles.tableColHeader}>Amt</Text>
+            <Text style={styles.tableColHeader}>Sale</Text>
+            <Text style={styles.tableColHeader}>Save</Text>
+            <Text style={styles.tableColHeader}>Net</Text>
           </View>
 
           {selectedProducts.map((p, i) => (
@@ -95,11 +108,11 @@ const BillPDF = ({ selectedProducts, total, height }) => {
         </View>
 
         <View style={{ marginTop: 6, textAlign: "right" }}>
-          <Text style={styles.total}>
-            Discount: ₹{total.discount.toFixed(2)}
+          <Text style={styles.discount}>
+            Discount: {total.discount.toFixed(2)}
           </Text>
           <Text style={styles.total}>
-            Total Amount: ₹{total.amount.toFixed(2)}
+            Total Amount: {total.amount.toFixed(2)}
           </Text>
         </View>
         <Text style={styles.footer}>Thank you for shopping!</Text>
