@@ -27,7 +27,7 @@ const predefinedProducts = [
 ];
 
 export default function ProductForm({ setProducts }) {
-  const [product, setProduct] = useState({ name: "", price: "", quantity: "" });
+  const [product, setProduct] = useState({ name: "", mrp: "", sellingPrice: "", quantity: "" });
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -54,16 +54,29 @@ export default function ProductForm({ setProducts }) {
   }, []);
 
   const handleProductSelect = (selectedProduct) => {
-    setProduct({ ...product, name: selectedProduct.name });
     setSearchTerm(selectedProduct.name);
+    setProduct({ ...product, name: selectedProduct.name });
     setIsDropdownOpen(false);
+  };
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    setProduct({ ...product, name: value });
+    setIsDropdownOpen(value.length > 0);
+    setSelectedIndex(-1);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!product.name || !product.price || !product.quantity) return;
+    if (!product.name || !product.mrp || !product.sellingPrice || !product.quantity) return;
+    // Ensure selling price is not higher than MRP
+    if (parseFloat(product.sellingPrice) > parseFloat(product.mrp)) {
+      alert("Selling price cannot be higher than MRP");
+      return;
+    }
     setProducts((prev) => [...prev, { ...product, id: Date.now() }]);
-    setProduct({ name: "", price: "", quantity: "" });
+    setProduct({ name: "", mrp: "", sellingPrice: "", quantity: "" });
     setSearchTerm("");
   };
 
@@ -75,13 +88,9 @@ export default function ProductForm({ setProducts }) {
       <div className="relative w-full md:w-1/3" ref={dropdownRef} style={{ zIndex: 1000 }}>
         <input
           type="text"
-          placeholder="Search Product..."
+          placeholder="Search or type new product name..."
           value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setIsDropdownOpen(true);
-            setSelectedIndex(-1);
-          }}
+          onChange={handleSearchChange}
           onFocus={() => setIsDropdownOpen(true)}
           onKeyDown={(e) => {
             if (e.key === "ArrowDown") {
@@ -119,30 +128,42 @@ export default function ProductForm({ setProducts }) {
               </div>
             ))}
             {filteredProducts.length === 0 && (
-              <div className="px-4 py-2 text-gray-500">No products found</div>
+              <div className="px-4 py-2 text-gray-500">No matches found</div>
             )}
           </div>
         )}
       </div>
       <input
         type="number"
-        placeholder="Price"
-        value={product.price}
-        onChange={(e) => setProduct({ ...product, price: e.target.value })}
-        className="border rounded p-2 w-full md:w-1/3"
+        placeholder="MRP"
+        value={product.mrp}
+        onChange={(e) => setProduct({ ...product, mrp: e.target.value })}
+        min="0"
+        step="0.01"
+        className="border rounded p-2 w-full md:w-1/5"
+      />
+      <input
+        type="number"
+        placeholder="Selling Price"
+        value={product.sellingPrice}
+        onChange={(e) => setProduct({ ...product, sellingPrice: e.target.value })}
+        min="0"
+        step="0.01"
+        className="border rounded p-2 w-full md:w-1/5"
       />
       <input
         type="number"
         placeholder="Quantity"
         value={product.quantity}
         onChange={(e) => setProduct({ ...product, quantity: e.target.value })}
-        className="border rounded p-2 w-full md:w-1/3"
+        min="1"
+        className="border rounded p-2 w-full md:w-1/5"
       />
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 whitespace-nowrap"
       >
-        Add
+        Add Product
       </button>
     </form>
   );

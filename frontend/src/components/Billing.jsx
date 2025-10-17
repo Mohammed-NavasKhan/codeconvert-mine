@@ -14,10 +14,14 @@ const Billing = ({ products }) => {
 
   React.useEffect(() => {
     const totalValue = localProducts.reduce(
-      (sum, i) => sum + (i.price || 0) * (i.quantity || 0),
+      (sum, i) => sum + (i.sellingPrice || 0) * (i.quantity || 0),
       0
     );
-    setTotal(totalValue);
+    const totalDiscount = localProducts.reduce(
+      (sum, i) => sum + ((i.mrp - i.sellingPrice) || 0) * (i.quantity || 0),
+      0
+    );
+    setTotal({ amount: totalValue, discount: totalDiscount });
   }, [localProducts]);
 
   const handleChange = (index, field, value) => {
@@ -74,8 +78,10 @@ const Billing = ({ products }) => {
           <thead>
             <tr>
               <th className="border p-2">Product</th>
-              <th className="border p-2">Price</th>
+              <th className="border p-2">MRP</th>
+              <th className="border p-2">Selling Price</th>
               <th className="border p-2">Qty</th>
+              <th className="border p-2">Discount</th>
               <th className="border p-2">Total</th>
               <th className="border p-2">Action</th>
             </tr>
@@ -88,9 +94,19 @@ const Billing = ({ products }) => {
                   <input
                     type="number"
                     className="w-20 border rounded p-1"
-                    value={item.price}
+                    value={item.mrp}
                     onChange={(e) =>
-                      handleChange(index, "price", e.target.value)
+                      handleChange(index, "mrp", e.target.value)
+                    }
+                  />
+                </td>
+                <td className="border p-2">
+                  <input
+                    type="number"
+                    className="w-20 border rounded p-1"
+                    value={item.sellingPrice}
+                    onChange={(e) =>
+                      handleChange(index, "sellingPrice", e.target.value)
                     }
                   />
                 </td>
@@ -104,8 +120,11 @@ const Billing = ({ products }) => {
                     }
                   />
                 </td>
+                <td className="border p-2 text-right text-green-600">
+                  {((item.mrp - item.sellingPrice || 0) * (item.quantity || 0)).toFixed(2)}
+                </td>
                 <td className="border p-2 text-right">
-                  {((item.quantity || 0) * (item.price || 0)).toFixed(2)}
+                  {((item.quantity || 0) * (item.sellingPrice || 0)).toFixed(2)}
                 </td>
                 <td className="border p-2 text-center">
                   <button
@@ -123,8 +142,13 @@ const Billing = ({ products }) => {
 
       {/* Fixed bottom section */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4">
-        <div className="text-right mb-2">
-          <span className="text-xl font-bold">Total: ₹{total.toFixed(2)}</span>
+        <div className="text-right space-y-1 mb-3">
+          <p className="text-green-600 font-semibold">
+            Total Discount: ₹{total.discount?.toFixed(2)}
+          </p>
+          <p className="text-xl font-bold">
+            Total Amount: ₹{total.amount?.toFixed(2)}
+          </p>
         </div>
         <div className="flex justify-end">
           <button

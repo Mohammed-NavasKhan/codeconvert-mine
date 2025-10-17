@@ -22,7 +22,6 @@ const BillPDF = ({ selectedProducts, total, height }) => {
       fontSize: 9,
       textAlign: "center",
       marginBottom: 10,
-      color: "#666",
     },
     table: { 
       display: "table", 
@@ -52,8 +51,9 @@ const BillPDF = ({ selectedProducts, total, height }) => {
       flexGrow: 1,
       textAlign: "left",
     },
-    total: { marginTop: 6, textAlign: "right", fontWeight: "bold" },
-    footer: { marginTop: 8, textAlign: "center", fontSize: 8 },
+    total: { marginTop: 6, textAlign: "right", fontWeight: "bold", fontSize: 12 },
+    discount: { marginTop: 6, textAlign: "right", fontWeight: "bold", fontSize: 8 },
+    footer: { marginTop: 8, textAlign: "center", fontSize: 9 },
   });
 
   return (
@@ -72,7 +72,9 @@ const BillPDF = ({ selectedProducts, total, height }) => {
           <View style={styles.tableRow}>
             <Text style={styles.tableColHeader}>Item</Text>
             <Text style={styles.tableColHeader}>Qty</Text>
+            <Text style={styles.tableColHeader}>MRP</Text>
             <Text style={styles.tableColHeader}>Price</Text>
+            <Text style={styles.tableColHeader}>Disc</Text>
             <Text style={styles.tableColHeader}>Amt</Text>
           </View>
 
@@ -80,15 +82,26 @@ const BillPDF = ({ selectedProducts, total, height }) => {
             <View key={i} style={styles.tableRow}>
               <Text style={styles.tableCol}>{p.name}</Text>
               <Text style={styles.tableCol}>{p.quantity}</Text>
-              <Text style={styles.tableCol}>{p.price}</Text>
+              <Text style={styles.tableCol}>{p.mrp}</Text>
+              <Text style={styles.tableCol}>{p.sellingPrice}</Text>
               <Text style={styles.tableCol}>
-                {(p.price * p.quantity).toFixed(2)}
+                {((p.mrp - p.sellingPrice) * p.quantity).toFixed(2)}
+              </Text>
+              <Text style={styles.tableCol}>
+                {(p.sellingPrice * p.quantity).toFixed(2)}
               </Text>
             </View>
           ))}
         </View>
 
-        <Text style={styles.total}>Total: {(total || 0).toFixed(2)}</Text>
+        <View style={{ marginTop: 6, textAlign: "right" }}>
+          <Text style={styles.total}>
+            Discount: ₹{total.discount.toFixed(2)}
+          </Text>
+          <Text style={styles.total}>
+            Total Amount: ₹{total.amount.toFixed(2)}
+          </Text>
+        </View>
         <Text style={styles.footer}>Thank you for shopping!</Text>
       </Page>
     </Document>
