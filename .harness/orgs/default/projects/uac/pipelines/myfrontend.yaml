@@ -26,6 +26,8 @@ pipeline:
                         script: ls
                     environmentVariables: []
                     outputVariables: []
+                    delegateSelectors:
+                      - docker-delegate
                   timeout: 10m
         tags: {}
         delegateSelectors:
