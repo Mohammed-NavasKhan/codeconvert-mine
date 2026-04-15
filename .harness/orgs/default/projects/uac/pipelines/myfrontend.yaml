@@ -1,0 +1,48 @@
+pipeline:
+  name: myfrontend
+  identifier: myfrontend
+  projectIdentifier: uac
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: github
+        build: <+input>
+  stages:
+    - stage:
+        name: Build
+        identifier: Build
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: true
+          buildIntelligence:
+            enabled: true
+          platform:
+            os: Linux
+            arch: Arm64
+          runtime:
+            type: Docker
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: npm install
+                  identifier: npm_install
+                  spec:
+                    connectorRef: dockerconnector
+                    image: node:22
+                    shell: Sh
+                    command: |-
+                      cd frontend
+                      echo "inside the project folder."
+                      echo "started installing node modules."
+                      npm install
+                      echo "Installion complete."
+        delegateSelectors:
+          - docker-delegate
