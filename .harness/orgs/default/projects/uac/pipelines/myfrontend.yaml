@@ -9,26 +9,33 @@ pipeline:
         name: clone repo
         identifier: clone_repo
         description: ""
-        type: Custom
+        type: CI
         spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: true
+          buildIntelligence:
+            enabled: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Docker
+            spec: {}
           execution:
             steps:
               - step:
-                  type: ShellScript
-                  name: ShellScript_1
-                  identifier: ShellScript_1
+                  type: Run
+                  name: npm install
+                  identifier: npm_install
                   spec:
-                    shell: Bash
-                    executionTarget: {}
-                    source:
-                      type: Inline
-                      spec:
-                        script: ls
-                    environmentVariables: []
-                    outputVariables: []
-                    delegateSelectors:
-                      - docker-delegate
-                  timeout: 10m
-        tags: {}
+                    shell: Sh
+                    command: ls
         delegateSelectors:
           - docker-delegate
+  properties:
+    ci:
+      codebase:
+        connectorRef: github
+        build: <+input>
