@@ -35,6 +35,8 @@ pipeline:
                     image: node-20
                     shell: Sh
                     command: npm install
+        delegateSelectors:
+          - docker-delegate
   properties:
     ci:
       codebase:
