@@ -31,6 +31,8 @@ pipeline:
                   name: Build App
                   identifier: Build_App
                   spec:
+                    connectorRef: account.harnessImage
+                    image: node-20
                     shell: Sh
                     command: npm install
   properties:
