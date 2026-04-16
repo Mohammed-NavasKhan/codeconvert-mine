@@ -6,7 +6,7 @@ import CodeConverter from './pages/CodeConverter';
 import Mortgages from './pages/Mortgages'
 function App() {
   return (
-    <Router>
+    <Router basename='/agenticai/'>
       <div className="min-h-screen bg-gray-50">
         <Navbar />
         <Breadcrumb />
