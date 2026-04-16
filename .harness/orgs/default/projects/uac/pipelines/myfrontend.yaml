@@ -50,7 +50,7 @@ pipeline:
                     tags:
                       - frontend
                     caching: true
-                    dockerfile: Dockerfile
+                    dockerfile: frontend/Dockerfile
                     context: frontend
           infrastructure:
             type: KubernetesDirect
