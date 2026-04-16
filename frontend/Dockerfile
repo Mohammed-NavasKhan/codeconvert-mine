@@ -2,23 +2,23 @@
 FROM node:20.9.0-alpine3.18 AS base
 
 # Dependencies stage
-FROM base as deps
+FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package*.json ./ 
-RUN npm ci
+COPY package*.json ./
+RUN npm install
 
 # Build stage
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY . . 
+COPY . .
 RUN npm run build
 
 # Production environment
 FROM nginx:stable-alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
-COPY ./nginx/nginx.conf /etc/nginx/nginx.conf  
+COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 4200
 CMD ["nginx", "-g", "daemon off;"]
