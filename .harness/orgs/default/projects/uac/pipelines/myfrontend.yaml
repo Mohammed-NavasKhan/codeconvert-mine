@@ -26,7 +26,7 @@ pipeline:
             steps:
               - step:
                   type: Run
-                  name: Run_1
+                  name: Command
                   identifier: Run_1
                   spec:
                     connectorRef: public_docker
@@ -35,6 +35,16 @@ pipeline:
                     command: |-
                       cd frontend
                       echo "Inside Frontend Folder"
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: BuildAndPushDockerRegistry_1
+                  identifier: BuildAndPushDockerRegistry_1
+                  spec:
+                    connectorRef: dockerconnector
+                    repo: harnessdev
+                    tags:
+                      - frontend
+                    caching: true
           infrastructure:
             type: KubernetesDirect
             spec:
