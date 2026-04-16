@@ -26,13 +26,16 @@ pipeline:
             steps:
               - step:
                   type: Run
-                  name: list
-                  identifier: list
+                  name: Run_1
+                  identifier: Run_1
                   spec:
-                    connectorRef: account.harnessImage
-                    image: node-20
+                    connectorRef: dockerconnector
+                    image: node:20.9.0-alpine3.18
                     shell: Sh
-                    command: ls
+                    command: |-
+                      echo "execution started"
+                      ls
+                      echo "execution completed"
           infrastructure:
             type: KubernetesDirect
             spec:
