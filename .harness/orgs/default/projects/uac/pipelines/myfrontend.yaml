@@ -36,15 +36,14 @@ pipeline:
                       cd frontend
                       echo "Inside Frontend Folder"
               - step:
-                  type: BuildAndPushDockerRegistry
-                  name: BuildAndPushDockerRegistry_1
-                  identifier: BuildAndPushDockerRegistry_1
+                  type: Run
+                  name: Run_2
+                  identifier: Run_2
                   spec:
-                    connectorRef: dockerconnector
-                    repo: harnessdev
-                    tags:
-                      - frontend
-                    caching: true
+                    connectorRef: public_docker
+                    image: alpine:latest
+                    shell: Sh
+                    command: ls
           infrastructure:
             type: KubernetesDirect
             spec:
