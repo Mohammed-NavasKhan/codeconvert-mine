@@ -26,16 +26,18 @@ pipeline:
             steps:
               - step:
                   type: Run
-                  name: Run_1
+                  name: Build
                   identifier: Run_1
                   spec:
                     connectorRef: public_docker
                     image: node:20.9.0-alpine3.18
                     shell: Sh
                     command: |-
-                      echo "execution started"
-                      ls
-                      echo "execution completed"
+                      echo "Pulled Docker Images"
+                      cd frontend
+                      echo "Inside Project Folder"
+                      npm install
+                      npm run build
           infrastructure:
             type: KubernetesDirect
             spec:
