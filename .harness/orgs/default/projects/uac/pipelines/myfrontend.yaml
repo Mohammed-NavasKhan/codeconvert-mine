@@ -24,27 +24,34 @@ pipeline:
             enabled: true
           execution:
             steps:
-              - parallel:
-                  - step:
-                      type: Run
-                      name: Command
-                      identifier: Run_1
-                      spec:
-                        connectorRef: public_docker
-                        image: alpine:latest
-                        shell: Sh
-                        command: |-
-                          cd frontend
-                          echo "Inside Frontend Folder"
-                  - step:
-                      type: Run
-                      name: Run_2
-                      identifier: Run_2
-                      spec:
-                        connectorRef: public_docker
-                        image: alpine:latest
-                        shell: Sh
-                        command: ls
+              - stepGroup:
+                  name: clone and inside project folder
+                  identifier: clone_and_inside_project_folder
+                  steps:
+                    - step:
+                        type: Run
+                        name: Run_1
+                        identifier: Run_1
+                        spec:
+                          connectorRef: public_docker
+                          image: alpine:latest
+                          shell: Sh
+                          command: |-
+                            echo "Running Command"
+                            cd frontend
+                            echo "Inside Project Root Folder"
+                    - step:
+                        type: Run
+                        name: Run_2
+                        identifier: Run_2
+                        spec:
+                          connectorRef: public_docker
+                          image: alpine:latest
+                          shell: Sh
+                          command: |-
+                            echo "Files inside project folder"
+                            ls
+                            echo "All files are listed"
           infrastructure:
             type: KubernetesDirect
             spec:
