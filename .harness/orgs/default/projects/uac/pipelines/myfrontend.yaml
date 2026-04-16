@@ -25,19 +25,15 @@ pipeline:
           execution:
             steps:
               - step:
-                  type: Run
-                  name: Build
-                  identifier: Run_1
+                  type: BuildAndPushDockerRegistry
+                  name: BuildAndPushDockerRegistry_1
+                  identifier: BuildAndPushDockerRegistry_1
                   spec:
-                    connectorRef: public_docker
-                    image: node:20.9.0-alpine3.18
-                    shell: Sh
-                    command: |-
-                      echo "Pulled Docker Images"
-                      cd frontend
-                      echo "Inside Project Folder"
-                      npm install
-                      npm run build
+                    connectorRef: dockerconnector
+                    repo: harnessdev
+                    tags:
+                      - frontend
+                    caching: true
           infrastructure:
             type: KubernetesDirect
             spec:
