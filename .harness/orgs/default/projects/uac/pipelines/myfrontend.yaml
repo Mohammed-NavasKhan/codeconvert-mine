@@ -52,6 +52,10 @@ pipeline:
                     caching: true
                     dockerfile: frontend/Dockerfile
                     context: frontend
+                    resources:
+                      limits:
+                        memory: 2Gi
+                        cpu: "1"
           infrastructure:
             type: KubernetesDirect
             spec:
