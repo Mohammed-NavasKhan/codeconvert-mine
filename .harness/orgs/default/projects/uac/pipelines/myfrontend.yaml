@@ -46,9 +46,10 @@ pipeline:
                   identifier: BuildAndPushDockerRegistry_1
                   spec:
                     connectorRef: dockerconnector
-                    repo: harnessdev
+                    repo: mohammednavasdocker/harnessdev
                     tags:
                       - frontend
+                    caching: true
                     dockerfile: Dockerfile
                     context: frontend
           infrastructure:
