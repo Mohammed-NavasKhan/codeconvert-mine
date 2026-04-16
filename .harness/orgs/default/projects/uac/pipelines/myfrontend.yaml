@@ -40,18 +40,17 @@ pipeline:
                             echo "Running Command"
                             cd frontend
                             echo "Inside Project Root Folder"
-                    - step:
-                        type: Run
-                        name: Run_2
-                        identifier: Run_2
-                        spec:
-                          connectorRef: public_docker
-                          image: alpine:latest
-                          shell: Sh
-                          command: |-
-                            echo "Files inside project folder"
-                            ls
-                            echo "All files are listed"
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: BuildAndPushDockerRegistry_1
+                  identifier: BuildAndPushDockerRegistry_1
+                  spec:
+                    connectorRef: dockerconnector
+                    repo: harnessdev
+                    tags:
+                      - frontend
+                    dockerfile: Dockerfile
+                    context: frontend
           infrastructure:
             type: KubernetesDirect
             spec:
