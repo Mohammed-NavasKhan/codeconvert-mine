@@ -24,26 +24,27 @@ pipeline:
             enabled: true
           execution:
             steps:
-              - step:
-                  type: Run
-                  name: Command
-                  identifier: Run_1
-                  spec:
-                    connectorRef: public_docker
-                    image: alpine:latest
-                    shell: Sh
-                    command: |-
-                      cd frontend
-                      echo "Inside Frontend Folder"
-              - step:
-                  type: Run
-                  name: Run_2
-                  identifier: Run_2
-                  spec:
-                    connectorRef: public_docker
-                    image: alpine:latest
-                    shell: Sh
-                    command: ls
+              - parallel:
+                  - step:
+                      type: Run
+                      name: Command
+                      identifier: Run_1
+                      spec:
+                        connectorRef: public_docker
+                        image: alpine:latest
+                        shell: Sh
+                        command: |-
+                          cd frontend
+                          echo "Inside Frontend Folder"
+                  - step:
+                      type: Run
+                      name: Run_2
+                      identifier: Run_2
+                      spec:
+                        connectorRef: public_docker
+                        image: alpine:latest
+                        shell: Sh
+                        command: ls
           infrastructure:
             type: KubernetesDirect
             spec:
